@@ -1,0 +1,59 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+X/Y Scroll Box</h1>
+<img src="pictures/xyscroll_create.jpg" >
+<blockquote>The X/Y scroll box is a serie of groups inside groups. This
+widget enable you to create a big drawable box and then just scroll this
+drawable with horizontal and vertical scrollbars. If you scroll the drawable
+area, expose events are generated do redraw the exposed surface. This widget
+will be enhanced in future versions to replace all other scroll widgets.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *xyscroll(x,y,w,h,f,color,xdrawable,ydrawable);</tt>
+<p><tt>int x,y,w,h,color,xdrawable,ydrawable;</tt>
+<br><tt>void (*f)(struct xtree *);</tt></blockquote>
+
+<blockquote>You can set a xdrawable size zero to hide the vertical scrollbar
+or a ydrawable size to zero to hide the horizontal scrollbar. All operations
+are automatic.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void draw(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,rand()%256);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillRectangle(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->aw/2+rand()%t->aw/2-rand()%t->aw/2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->ah/2+rand()%t->ah/2-rand()%t->ah/2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rand()%t->aw/4,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rand()%t->ah/4);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,white);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawLine(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0,0,t->aw,t->ah);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawLine(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0,t->ah,t->aw,0);
+}
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,300,"scrollbars");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xyscroll_create(8,8,-8,0,draw,gray,1024,1024);
+}</pre>
+</blockquote>
+This is a easy example: a window with a xyscroll box inside. If you move
+the scrollbar in any direction, the box inside the scrollbox is exposed
+and then the draw() function is called to draw the expose area.</blockquote>
+
+</body bgcolor=white>
+</html>

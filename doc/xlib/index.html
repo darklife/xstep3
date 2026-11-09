@@ -1,0 +1,1352 @@
+<body bgcolor=white>
+
+<h1>PROGRAMAÇÃO X</h1>
+
+<h6>Copyright (c) 2000 by <a href=mailto:marcelos AT bsi.com.br> Marcelo
+Samsoniuk </a>
+
+<p> Todos os programas exemplo deste artigo podem ser redistribuídos e
+modificados de acordo com a GNU Public Licence. Este artigo originalmente
+foi produzido em duas partes, a primeira abordando a programação X baseada
+diretamente na X library, a segunda baseado no toolkit XSTEP, no final do
+artigo existem links para materiais mais especificos sobre o toolkit
+XSTEP.</h6>
+
+<p><b>INTRODUÇÃO</b>
+
+<p>O X Window System (ou simplesmente X) é um avançado ambiente gráfico de
+janelas, desenvolvido a mais de 15 anos no Instituto de Tecnologia de
+Massachusetts e mais tarde adotado como padrão na grande maioria de
+variações do <b>UNIX</b>, chegando ao alcance de milhões de usuários em todo
+o mundo.  Embora o X tenha um projeto relativamente antigo, trata-se de um
+projeto incrivelmente avançado e flexível, de modo que, nestes 15 anos, não
+se contentou em simplemente acompanhar a evolução natural das interfaces
+gráficas, mas foi além, introduzindo avançadas extensões ao seu projeto e se
+mantendo todos estes anos à frente dos outros ambientes gráficos do mercado.
+
+<p>Um dos aspectos mais interessantes do X é o fato de ser um servidor
+gráfico baseado em rede, de modo que é possível visualizar imagens em um
+servidor X à partir de aplicações rodando em computadores remotos, de forma
+totalmente transparente, como se as aplicações estivessem sendo executadas
+localmente.  Certamente já existe tecnologia similiar em outros ambientes
+gráficos e isto deve ser tornar realmente usual nos próximos anos, porém é
+interessante observar que o X introduziu o conceito de processamento gráfico
+distribuído em rede a nada menos que 15 anos, o que nos dá uma boa dimensão
+de quanto o X está a frente dos outros ambientes gráficos.
+
+<p><b>FUNDAMENTOS DE FUNCIONAMENTO</b>
+
+<p>A imagem abaixo ilustra uma aplicação usual do X em uma rede, de modo que
+terminais X, basicamente estações UNIX sem disco, são utilizadas para
+visualizar aplicações que são executadas em uma estação UNIX e um
+supercomputador UNIX:
+
+<p><ul><img src="imagem-2.jpg"></ul>
+
+<p>A estação UNIX faz o processamento de aplicações mais leves, como o
+<b>Netscape</b> e <b>GIMP</b>, além de disponibilizar dois monitores para
+algum usuário e uma conexão Internet. O supercomputador, por outro lado, é
+reservado o processamento de aplicações mais pesadas, como a geração de
+imagens de alta resolução com traçamento de raios pelo <b>BRLCAD</b>. No
+caso do supercomputador, ele sequer possui dispositivo de visualização de
+imagens e toda a interação gráfica está realmente restrita a terminais X na
+rede.
+ 
+<p>A maioria dos recursos da rede, inclusive as imagens de boot dos
+terminais X, podem ser centralizados na estação UNIX principal, facilitando
+muito a administração e permitindo grande flexibilidade para os usuários.
+Como todos os recursos estão centralizados e os terminais X simplesmente são
+utilizados para visualização, um usuário pode utilizar qualquer terminal X
+na rede, ou até de outras redes externas, para ter acesso a suas aplicações
+e aos seus dados, pois na prática as aplicações são sempre executadas na
+estação UNIX, de modo que os terminais X limitam-se somente à exibição das
+imagens. Imagine-se em uma viagem de negócios, para outro extremo do mundo
+e, por algum motivo, precisa ter acesso a e-mails arquivados no seu Netscape
+ou exibir uma simulação numéricamente intensiva. Para resolver o problema
+basta ter acesso a um terminal X ou estação UNIX com X, então um simples
+telnet para sua estação UNIX ou para o supercomputador UNIX da sua rede
+permite visualizar as aplicações remotas a milhares de quilômetros de
+distância (se isto não lhe causa surpresa, imagine-se então fazendo o mesmo
+a 15 anos com um PC ou Macintosh :)
+
+<p>Para tudo isto funcionar, o X foi projetado desde o princípio sob um
+modelo cliente-servidor.
+
+<p><b>O SERVIDOR X</b>
+
+<p>O <b>servidor X</b> é a parte mais importante do conjunto e é responsável
+pela interação com o usuário, seja gerando imagens a partir de diretivas
+gráficas recebidas pela rede, seja atendendo a requisições do teclado ou
+mouse. No nosso exemplo, cada terminal X é um servidor X e atende
+requisições geradas pela rede, através da porta 6000 com protocolo de
+transporte TCP. Estas requisições, codificadas no protocolo X, são recebidas
+e decodificadas pelo servidor X e se transformam em imagens no display do
+terminal X. Uma estação UNIX mais completa também pode disponibilizar um
+servidor X, tal como um terminal X, mas neste caso ele pode atender tanto
+requisições da rede quanto requisições locais via <b>loopback</b> de rede,
+visto que nada impede-nos de executar as aplicações e um servidor X e na
+mesma máquina (neste caso é possivel acelerar as conexões locais através de
+comunicação interprocesso, como <b>sockets</b> e <b>memória partilhada</b>,
+que são os métodos mais comuns).
+
+<p>Um servidor X pode atender simultâneamente multiplas conexões de
+aplicações remotas, inclusive rodando em computadores diferentes, de modo
+que cada aplicação pode manipular gráficos dentro de contextos independentes
+que, sem nenhuma surpresa, chamamos de <b>janelas</b>. Cada janela no X
+possui um contexto gráfico independente, de modo que uma aplicação pode
+desenhar gráficos dentro de uma janela sem causar interferência nas outras
+janelas. Uma janela pode conter outras janelas, e estas conter outras, ao
+infinito (ou até acabar a memória do servidor X), formando uma hierarquia:
+as janelas das aplicações estão contidas dentro da janela raiz (que
+compreende todo o espaço da tela) e cada janela possui sub-janelas dentro,
+onde cada sub-janela é um objeto independente, como botões, caixas de texto,
+barras de deslizamento e etc, de modo que cada objeto pode ter um contexto
+gráfico totalmente independente do outro. De fato, muitas aplicações
+modernas levam este conceito ao extremo e chegam a se ramificar em várias
+threads, cada uma cuidando de um contexto gráfico diferente. O melhor
+exemplo disso é o <b>x11amp</b>, onde multiplos processos trabalham de forma
+independente para desenhar segmentos diferentes de uma única janela. O
+<b>Communicator</b> e o <b>StarOffice</b> também são exemplos de aplicações
+que se ramificam para atender multiplas janelas de forma independente, neste
+caso cada uma representa uma sub-aplicação diferente.
+
+<p>Além do suporte a janelas, o servidor X disponibiliza diversos recursos
+de desenho e interação com o usuário, além de extensões destinadas a
+produzir gráficos ainda mais avançados, como o <b>GLX</b> e <b>PEX</b>, para
+gráficos 3D, <b>XIE</b> para imagens 2D e outras extensões, que, a partir de
+compactas diretivas gráficas, podem gerar imagens mais complexas, com alto
+desempenho.
+
+<p>Na figura abaixo temos uma idéia do que se passa nas entranhas de um
+servidor X:
+
+<p><ul><img src="xserver.jpg"></ul>
+
+<p>Ele costuma passar a maior parte do tempo aguardando eventos gerados pelo
+teclado, mouse ou rede, sendo este último para receber novas diretivas. As
+diretivas gráficas manipulam contextos gráficos separados, de formas
+diversas, para gerar imagens e todos os contextos gráficos são organizados
+de forma hierarquica, para refletir as disposções das janelas no momento de
+agrupar os vários contextos no <b>frame-buffer</b> da máquina, permitindo ao
+usuário visualizar as imagens na forma de janelas sobrepostas.
+
+<p>Uma característica interessante do servidor X é que ele costuma ser
+independente de dispositivo de exibição, ou seja, os displays podem ter
+alturas, larguras e profundidades de cor variadas um dos outros, sem que
+isto se torne um obstáculo para as aplicações, de modo que uma aplicação
+deve rodar tanto em um pequeno notebook 386 com um display de 640x480 pixels
+a 16 cores quanto em uma poderosa estação SGI com um display de 1280x1024
+pixels, 32 bits de cor e aceleração 3D por hardware (obviamente uma
+aplicação 3D irá rodar melhor na última máquina, mas para um emulador de
+terminal será completamente indiferente).
+
+<p>Apesar de toda sua tecnologia e complexidade, o servidor X espera receber
+diretivas gráficas de alguém, de modo que se faz necessário um cliente X que
+envie estas diretivas.
+
+<p><b>O CLIENTE X</b>
+
+<p>O <b>cliente X</b> é a aplicação responsável por gerar as diretivas
+gráficas para um servidor X. Como o servidor X está limitado a processar
+somente diretivas gráficas, não pode efetuar processamento não gráfico, como
+por exemplo manipular arquivos, descomprimir dados e calcular vetores 2D e
+3D.
+
+<p>Existe um cliente X muito especial, o <b>gerenciador de janelas</b>, cuja
+função é procurar janelas dentro da janela raiz e decorar estas janelas,
+normalmente mapeando estas janelas dentro de outra janela que contenha uma
+decoração, com botões para mover, redimensionar, fechar, maximinar, etc.
+Como o genenciador de janelas é apenas mais um cliente X, ele pode ser
+facilmente substituído por outro.
+
+<p>Para simplificar, o cliente X pode ser dividido em três partes:
+
+<p><ul><li> Biblioteca X: é a famosa <b>Xlib</b>, que através de funções
+permite enviar diretivas gráficas para um servidor X remoto e receber
+eventos gerados pelo teclado, mouse ou pelos próprios contextos gráficos.
+Sua funcionalidade é limitada a manipular objetos no servidor X, de modo que
+podemos manipular janelas, bitmaps e rabiscar alguns gráficos, mas não
+existe nenhum recurso mais complexo, como botões, caixas de texto, barras de
+rolagem ou coisas do genero. As funções mais complexas estão à cargo de
+outra camada, denominada <b>toolkit X</b>.
+
+<p><li> Toolkit X: é uma biblioteca destinada a manipular objetos de maior
+nível, como botões, caixas de texto, barras de rolagem e coisas do genero,
+denominados de <b>widgets</b>, utilizando para isto funções de mais baixo
+nível fornecidas pela biblioteca X. Embora exista somente uma biblioteca X,
+existem muitos toolkits, de modo que cada toolkit pode implementar um
+look-and-feel particular. Isto é bom pelo ponto de vista que o usuário tem a
+opção de trocar o look-and-feel (tal como pode trocar o gerenciador de
+janelas), por outro lado os toolkits costumam ser incompatíveis entre si, de
+modo que nem todas as aplicações disponíveis em um toolkit podem ter
+equivalentes em outro, forçando o usuário a misturar aplicações de toolkits
+diferentes e portanto trabalhando simultâneamente com visuais variados, o
+que muitas pessoas não consideram muito agradável.
+
+<p>O programador pode até preferir não utilizar toolkit nenhum, para obter
+maior controle sobre o funcionamento da aplicação, mas certamente depois de
+duas ou três aplicações irá perceber que muitas partes dos códigos podem ser
+reaproveitadas, de modo a gerar uma pequena biblioteca com utilitários para
+manipular eventos e desenhar widgets, terminando por gerar um novo toolkit
+X. Uma boa idéia, antes disso, é se perguntar se realmente os toolkits
+existentes não atendem suas necessidades, do contrário ainda existe a opção
+de entrar em contato com os autores e verificar a possibilidade de se juntar
+a eles no desenvolvimento, de modo a atender suas necessidades. Ok, sou
+suspeito para falar sobre este assunto, então, se nada der certo, você pode
+escrever seu próprio toolkit. Supondo que usaremos um toolkit, basta então
+escrever uma aplicação que faça algo útil (voltaremos a este assunto
+adiante).
+
+<p><li> Aplicação X: é a aplicação que utiliza um toolkit (ou a biblioteca
+X) para gerar diretivas gráficas e tomar decisões sobre o que fazer, por
+exemplo, quando o usuário aciona um botão para salvar um arquivo no disco. É
+interessante perceber que entre a aplicação e o display do usuário existem
+muitas camadas complexas, mas as aplicações não precisam, necessariamente,
+serem complexas.</ul>
+
+<p>A imagem abaixo mostra como funcionam os clientes X conectados ao servidor X:
+
+<p><ul><img src="xclient.jpg"></ul>
+
+<p>O gerenciador de janelas e a aplicação vermelha podem estar rodando em
+computadores remotos e demonstram serem aplicações X bem usuais, onde o
+acesso é feito pela biblioteca X e a aplicação utiliza um toolkit para
+grande parte do trabalho, embora também faça algumas solicitações
+diretamente à biblioteca X (não existem muitos problemas quanto a isto e, de
+fato, é algo bem comum). A aplicação verde nos parece bem mais complicada,
+pelo fato de utilizar algumas sub-janelas, contudo, podem ser sub-janelas
+gerenciadas pelo tookit, o que também é algo bem normal. O que chama a
+atenção mesmo é o fato desta aplicação rodar em duas threads separadas, que
+se comunicam através de <b>IPC</b> e, uma das threads, está conectada ao
+servidor X através de uma extensão <b>XSHM</b>, que é um tipo de IPC também
+(vale lembrar que IPC é um um grupo de comunicação interprocesso que só
+funciona no mesmo computador, portanto o servidor X e o este cliente X só
+podem estar na <b>mesma</b> máquina). O exemplo ilustra como o X pode ser
+flexível.
+
+<p>Normalmente uma aplicação X trabalha com um sistema de <b>call-backs</b>,
+solicitando ao toolkit que sejam criados diversas widgets (e cada widget
+cria um contexto gráfico no servidor X). No final o toolkit assume o
+processamento, aguardando eventos gerados pelo servidor X, de modo que estes
+eventos sejam processados pelo toolkit e, em alguns casos, sejam feitas
+call-backs para funções da aplicação desempenharem tarefas úteis, como
+salvar um arquivo no disco.
+
+<p>Bom, vamos deixar este papo careta e colocar de uma vez por todas a mão
+na massa. Todos os códigos exemplos e modificações que vamos apresentar ao
+longo do artigo estão disponíveis separadamente no <b>Apêndice A</b> deste
+artigo, bem como Makefiles para facilitar a compilação de todos os exemplos.
+
+<p><b>HELLO WORLD - PARTE 1: O PRINCÍPIO</b>
+
+<p>O grande desafio do programador X iniciante é justamente saber por onde
+começar. Normalmente o objetivo inicial é algo simples, como abrir uma
+janela com as inscrições <b>hello world</b> dentro, mas é importante avisar
+que nada no X pode ser considerado simples, pois estamos em um ambiente
+gráfico cliente-servidor e o servidor X pode muito bem estar do outro lado
+do mundo:
+
+<ul><pre>
+
+#include        &lt;X11/Xlib.h>
+#include        &lt;stdio.h>
+#include        &lt;stdlib.h>
+#include        &lt;unistd.h>
+
+Display         *display;       // descritor para o servidor X remoto
+Window          window;         // descritor para janela
+GC              gc;             // descritor para contexto grafico
+XFontStruct     *font;          // descritor para uma fonte
+int             screen,         // descritor para um screen no servidor X
+                white,          // descritor para a cor branca
+                black;          // descritor para a cor preta
+XGCValues       gcvalues;       // configuracoes do contexto grafico
+
+#define DISPLAY "localhost:0.0" // nome do servidor X remoto
+#define FONT    "*helvetica*24*"
+
+int main() {
+
+        char *message="hello world!";
+
+        display=XOpenDisplay(DISPLAY);
+         
+        if(!display) {
+        
+                printf("can't open display %s\n",DISPLAY);
+                return;
+        }
+         
+        screen=DefaultScreen(display);
+        white=WhitePixel(display,screen);
+        black=BlackPixel(display,screen);
+        font=XLoadQueryFont(display,FONT);
+
+        if(!font) {
+
+                printf("can't open font %s\n",FONT);
+                return; 
+        }
+        
+        window=XCreateSimpleWindow(display,RootWindow(display,screen),16,16,640,480,0,black,white);
+        gc=XCreateGC(display,window,0,&gcvalues);
+        
+        XMapWindow(display,window);
+
+        XFlush(display);
+
+        sleep(1);
+
+        XSetFont(display,gc,font->fid);
+        XSetForeground(display,gc,black);
+
+        XDrawString(display,window,gc,
+                320-XTextWidth(font,message,strlen(message))/2,
+                240,
+                message,
+                strlen(message));
+
+        XFlush(display);
+
+        for(;;) usleep(1);
+}       
+
+</ul> </pre>
+
+<p>Parece complicado, mas funciona. No início do programa definimos uma
+série de variáveis que irão fazer o papel de descritores para objetos que
+estão no servidor X remoto, então começamos o programa abrindo uma conexão
+com um servidor X remoto:
+
+<ul><pre>
+
+                display=XOpenDisplay(DISPLAY);
+
+</ul></pre>
+
+<p>No nosso exemplo, definimos o nome do servidor X como sendo
+<b>localhost:0.0</b>, que indica que desejamos abrir o <b>display 0 screen
+0</b> da máquina <b>localhost</b>. Se, por algum motivo, for necessário se
+conectar a um servidor X remoto, basta substituir pelo nome da máquina, por
+exemplo, <b>www.jpl.nasa.gov:0.0</b>. Os outros números indicam,
+respectivamente, o número do display e o número do screen. Um display é um
+servidor X que possui um frame-buffer, teclado e mouse somente para ele, de
+modo que podemos rodar um display de cada vez em uma mesma máquina (a menos
+que a referida máquina tenha dois frame-bufers, dois teclados e dois mouses,
+funcionando de forma <b>independente</b>). O screen, por outro lado, indica
+o frame-buffer que está sendo utilizado, de modo que é possivel colocar
+vários frame-buffers no mesmo display, todos eles partilhando o mesmo
+teclado e mouse (neste caso temos somente um teclado e mouse, mas podemos
+ter mais de um monitor de vídeo, de modo as telas trabalham de forma
+<b>cooperativa</b>).
+
+<p>Uma opção para o nome do servidor X remoto é utilizar a variável de
+ambiente <b>DISPLAY</b>, eliminando a necessidade de se definir a constante
+<b>DISPLAY</b> e resultando em um código um pouco diferente:
+
+<ul><pre>
+
+                display=XOpenDisplay(getenv("DISPLAY"));
+
+</ul></pre>
+
+<p>Conectado a um servidor X e possuindo um descritor para um display,
+podemos pegar um descritor para um screen qualquer. Como não temos certeza
+de que realmente existe mais de um screen, uma boa ideia pode ser
+simplesmente pegar o screen default, de modo que nossas janelas serão
+criadas no screen que estiver em uso no momento:
+
+<ul><pre>
+
+        screen=DefaultScreen(display);
+
+</ul></pre>
+
+<p>Aproveitamos e já definimos alguns valores que serão utilizados mais
+tarde, como algumas cores e as fontes que serão utilizados no aplicativo:
+
+<ul><pre>
+
+        white=WhitePixel(display,screen);
+        black=BlackPixel(display,screen);
+        font=XLoadQueryFont(display,FONT);
+
+</ul></pre>
+
+<p>É importante ter cuidado no momento de definir uma fonte! utilize o
+utilitário <b>xfontsel</b> para se certificar que a fonte desejada realmente
+está disponível no servidor X remoto. No exemplo utilizamos uma <b>Helvetica
+24</b>, que é uma fonte bem comum, mas com o xfontsel podemos selecionar uma
+fonte qualquer e então copiar a definição dela para nosso programa. Por
+exemplo, para utilizar uma fonte <b>Garamond 72</b>, do pacote
+<b>freefonts</b>, poderiamos utilizar
+<b>-*-garamond-*-*-*-*-*-720-*-*-*-*-*-*</b>, ao invés de
+<b>*helvetica*24*</b>. Se uma fonte não pode ser resolvida pelo servidor X
+remoto, o nosso programa indicará a falha e sairá sem conseqüências
+desagradáveis.
+
+<p>Tendo o terreno preparado, podemos então criar descritores para janelas e
+contextos gráficos:
+
+<ul><pre>
+
+        window=XCreateSimpleWindow(display,RootWindow(display,screen),16,16,640,480,0,black,white);
+        gc=XCreateGC(display,window,0,&gcvalues);
+
+</ul></pre>
+
+<p>Observe que são somente criados <b>descritores</b> para estes objetos, de
+modo que nada é realmente visualizado ainda na tela. No caso do descritor
+para a janela, passamos como parametros o descritor da conexão com o
+servidor X, um descritor de janela raiz (indicando em que display e screen a
+janela será criada), a posição (16,16), o tamanho (640x480), a espessura da
+borda, a cor da borda e, finalmente, a cor da janela. Estas informações
+descrevem fisicamente o aspecto que nossa janela terá <b>quando</b> ela for
+mapeada na tela. No caso do descritor para o contexto gráfico, indicamos o
+descritor de conexão com o servidor X, a janela onde este contexto gráfico
+será utilizado e alguns parâmetros extras, que no nosso caso estão zerados,
+indicando que iremos utilizar os parâmetros default.
+
+<p>Para a janela, efetivamente, aparecer em nossa tela, precisamos mapear ela:
+
+<ul><pre>
+
+        XMapWindow(display,window);
+        XFlush(display);
+        sleep(1);
+
+</ul></pre>
+
+<p>Como o X utiliza grandes buffers de transferência para acelerar o
+processamento, necessitamos efetuar um <b>flush</b> dos seus buffers e
+garantir que a diretiva de mapeamento seja imediatamente interpretada, do
+contrário nossa aplicação chegará ao fim e simplesmente não veremos a janela
+na tela! após o flush dos buffers, nós inserimos um <b>delay</b> de 1
+segundo, para o servidor X ter tempo suficiente para exibir a janela antes
+de desenharmos algo dentro dela (veremos adiante que estas medidas podem ser
+facilmente contornadas por caminhos bem mais eficientes). Para desenharmos a
+frase <b>hello world</b>, precisamos definir alguns parâmetros no contexto
+gráfico:
+
+<ul><pre>
+
+        XSetFont(display,gc,font->fid);
+        XSetForeground(display,gc,black);
+
+</ul></pre>
+
+<p>Isto indica ao servidor X que desejamos escrever utilizando determinada
+fonte e todas as operações gráficas terão a cor preta. Feito isto, podemos
+então escrever no centro da janela:
+
+<ul><pre>
+
+        XDrawString(display,window,gc,
+                320-XTextWidth(font,message,strlen(message))/2,
+                240,
+                message,
+                strlen(message));
+
+        XFlush(display);
+
+        for(;;) usleep(1);
+
+</ul></pre>
+
+<p>Grande parte das funções de desenho funciona desta forma, indicando
+sempre o descritor da conexão com o display, a janela e o contexto gráfico.
+No caso do desenho do texto, fazemos um pequeno cálculo para centralizar a
+frase, passamos a frase e o tamanho dela. Então fazemos novamente um flush
+nos buffers, para que a mensagem seja efetivamente impressa. Terminamos
+então o programa com um loop infinito, para que a conexão com o servidor X
+não seja fechada (se a conexão for fechada, a janela e todos os objetos
+hierarquicamente abaixo dela são imediatamente destruídos). O loop que
+utilizamos tem um delay para evitar que o próprio loop consuma
+desnecessáriamente processamento da nossa máquina (o que aconteceria se
+simplesmente utilizassemos um 'while(1);' ).
+
+<p>Para compilar nossa primeira aplicação X, podemos simplesmente utilizar:
+
+<ul><pre>
+
+gcc -Wall -O3 helloworld.c -o helloworld -I/usr/X11R6/include -L/usr/X11R6/lib -lX11
+
+</ul></pre>
+
+<p>Rodando o programa veremos, efetivamente, o que suspeitávamos: se abre
+uma janela branca com 640x480 pixels e um segundo depois aparece a frase
+<b>hello world</b> no centro dela. Parece bom, porém se tentarmos mover a
+janela, redimensionar ou minimizar e maximar novamente, seu conteúdo
+desaparece. Isto acontece porque as funções de desenho que utilizamos estão
+manipulando diretamente o frame-buffer, ou seja, se a janela é apagada
+momentâneamente por algum motivo, seu conteúdo desaparece. É possível
+contornar isto muito facilmente, desenhando nossos gráficos dentro de um
+bitmap armazenado na memória do servidor X e definir que este bitmap é o
+background da janela, então se o conteúdo da janela for apagado por algum
+motivo, o servidor X instantâneamente remapeia o bitmap no background da
+janela, sem que precisemos ter algum trabalho. É uma solução, mas é uma
+solução cara para o servidor X: quatro janelas de 1152x864 pixels a 16 bits
+de cor irão consumir nada menos do que 8MB de memória do servidor X e sequer
+podemos ter certeza de que ele pode realmente dispor de toda esta memória! é
+uma abordagem possível, mas definitivamente não é nada elegante.
+
+<p>Certamente redesenhar a frase tem um custo muito menor, então podemos
+modificar o código para redesenhar continuamente a tela:
+
+<ul><pre>
+
+        XMapWindow(display,window);
+         
+        XSetFont(display,gc,font->fid);
+        XSetForeground(display,gc,black);
+
+        for(;;) {
+
+                XDrawString(display,window,gc,
+                        320-XTextWidth(font,message,strlen(message))/2,
+                        240,
+                        message,
+                        strlen(message));
+         
+	  XFlush(display);
+
+                usleep(1);              
+        }
+
+</ul></pre>
+
+<p>As modifições são simples: como redesenhamos sempre a tela, não
+precisamos mais nos preocupar com os buffers nem com delays (podemos
+simplesmente fazer um flush depois de imprimir a frase), então simplesmente
+chamamos a função de desenho continuamente. O delay no loop impede que o
+programa monopolize totalmente o tempo da CPU e garante que a máquina
+funcione suavemente e sem trancos.
+
+<p>Podemos experimentar isto através de uma pequena modificação, de modo que
+a frase seja continuamente redesenhada em posições diferentes. Antes de
+desenhar em uma nova posição, é feito o flush dos buffers, colocado um delay
+e então a frase é desenhada em branco, o que simplesmente apaga ela e
+permite redesenhar em uma nova posição:
+
+<ul><pre>
+
+        XMapWindow(display,window);
+
+        XSetFont(display,gc,font->fid);
+
+        for(i=0;;i++) {
+
+                XSetForeground(display,gc,black);
+                XDrawString(display,window,gc,i,i,message,strlen(message));
+
+                XFlush(display);
+
+                usleep(1);
+                                                 
+                XSetForeground(display,gc,white);
+                XDrawString(display,window,gc,i,i,message,strlen(message));
+                        
+                i=i%480;
+        }
+
+</ul></pre>
+
+<p>Não esqueça de declarar a nova variável <b>i</b> no topo da função
+<b>main()</b>, do contrário o programa não irá compilar. Experimente
+comentar o delay e o funcionamento se torna instável, pois se o servidor X
+estiver na mesma máquina, ele e a aplicação começam a competir por recursos
+(bem como todas as outras aplicações da máquina), resultando em um
+funcionamento nada suave e estável.
+
+<p>Isto é dramaticamente visualizado com a seguinte modificação:
+
+<ul><pre>
+
+        XMapWindow(display,window);
+
+        for(;;) {
+
+                XSetForeground(display,gc,rand()%2?black:white);
+
+                XFillRectangle(display,window,gc,
+                        rand()%640-rand()%320,
+                        rand()%480-rand()%240,
+                        rand()%640,
+                        rand()%480);
+
+                XFlush(display);
+                usleep(1);
+        }
+
+</ul></pre>
+
+<p>Faça experiências com este código, primeiro comentando o delay, depois
+comentando o flush e em seguinda comentando ambos. Observe as modificações
+e, se for o caso, rode mais de um programa destes de cada vez, para observar
+os efeitos. Normalmente, sem o flush dos buffers, o X trabalha aos trancos,
+processando as diretivas em blocos. Sem o delay o aplicativo concorre com o
+próprio servidor X em busca de processamento e torna seu processamento
+variável e instável.
+
+<p>Voltando ao nosso <b>hello world</b>, vamos modificar ligeiramente nosso
+exemplo, aproveitando que acabamos de conhecer a útil função
+<b>XFillRectangle()</b>, de modo que a frase passe a ser desenhada sobre um
+retângulo preto:
+
+<ul><pre>
+
+        XMapWindow(display,window);
+
+        XSetFont(display,gc,font->fid);
+
+        for(;;) {
+
+                XSetForeground(display,gc,black);
+
+                XFillRectangle(display,window,gc,16,16,640-32,480-32);
+         
+                XSetForeground(display,gc,white);
+
+                XDrawString(display,window,gc,   
+                        320-XTextWidth(font,message,strlen(message))/2,
+                        240,
+                        message,
+                        strlen(message));
+         
+                XFlush(display);
+                usleep(1);
+        }
+
+
+</ul></pre>
+
+<p>Surpresa: a frase é corretamente desenhada sobre o retângulo preto, mas
+como é desenhada continuamente, ela irá ter um aspecto estranho, piscando em
+alguns servidores X mais lentos ou, simplesmente, se tornando cinza em
+outros mais rápidos! definitivamente algo não está correto no nosso
+programa. É fácil perceber que não podemos ficar redesenhando continuamente
+a tela desta forma, mas também não podemos deixar de redesenhar se o
+frame-buffer for apagado por algum motivo, então deve haver uma forma mais
+correta de se fazer isto sem ser necessário apelar para os gigantescos
+bitmaps armazenados no servidor X.
+
+<p><b>HELLO WORLD - PARTE 2: EVENTOS</b>
+
+<p>O próprio servidor X pode nos fornecer uma boa solução para o problema de
+quando redesenhar a tela, através de <b>eventos</b>. Quando o usuário
+interage com o servidor X usando o mouse ou teclado, são gerados eventos, o
+que nos permite saber o que o usuário deseja fazer. Mais do que isto, quando
+as janelas se movem ou se redimensionam na tela, o servidor X gera eventos
+de tipos diversos, avisando quando uma janela é manipulada na tela. Com este
+aviso em mãos, podemos saber exatamente o momento de redesenhar a janela e
+muito mais, como vemos neste novo exemplo:
+
+<ul><pre>
+
+#include        &lt;X11/Xlib.h>
+#include        &lt;stdio.h>
+#include        &lt;stdlib.h>
+#include        &lt;unistd.h>
+
+Display         *display;               // descritor para o servidor X remoto
+Window          window;                 // descritor para janela
+GC              gc;                     // descritor para contexto grafico
+XEvent          event;                  // descritor para eventos recebidos
+XFontStruct     *font;                  // descritor para uma fonte
+int             screen,                 // descritor para um screen no servidor X
+                white,                  // descritor para a cor branca
+                black;                  // descritor para a cor preta
+XGCValues       gcvalues;               // configuracoes do contexto grafico
+
+#define DISPLAY "localhost:0.0"         // nome do servidor X remoto
+#define FONT    "*helvetica*24*"        // nome da fonte a ser utilizada
+
+int main(int i,char **p) {
+
+        char *message="hello world!";   // mensagem a ser impressa
+
+        display=XOpenDisplay(DISPLAY);
+
+        if(!display) {
+
+                printf("can't open display %s\n",DISPLAY);
+                return;
+        }
+         
+        screen=DefaultScreen(display);
+        white=WhitePixel(display,screen);
+        black=BlackPixel(display,screen);
+        font=XLoadQueryFont(display,FONT);
+
+        if(!font) {
+                   
+                printf("can't open font %s\n",FONT);
+                return;
+        }
+         
+        window=XCreateSimpleWindow(display,RootWindow(display,screen),16,16,640,480,0,black,white);
+        gc=XCreateGC(display,window,0,&gcvalues);
+
+        XSelectInput(display,window,ExposureMask);
+        XSetFont(display,gc,font->fid);   
+
+        XMapWindow(display,window);
+
+        for(;;) {
+
+                XNextEvent(display,&event);
+        
+                switch(event.type) {
+
+                        case Expose:
+                        
+                                printf("%s: exposed area (%dx%d+%d+%d)\n",p[0],
+                                        event.xexpose.width,
+                                        event.xexpose.height,
+                                        event.xexpose.x,
+                                        event.xexpose.y);
+
+                                XSetForeground(display,gc,black);
+                                XFillRectangle(display,window,gc,16,16,640-32,480-32);
+                                XSetForeground(display,gc,white);
+                                XDrawString(display,window,gc,
+                                        320-XTextWidth(font,message,strlen(message))/2,
+                                        240,
+                                        message,
+                                        strlen(message));   
+
+                                XFlush(display);
+                                break;
+                }
+        }
+}
+
+</ul></pre>
+
+<p>Inserimos algumas modificações no código para demonstrar alguns truques
+novos. Como estamos tratando de uma nova idéia, o exemplo foi refeito
+integralmente. Na parte superior do cógido não existem muitas modificações,
+de fato. Um truque novo foi no momento de definir o nome do display a ser
+conectado: ao invés de colocarmos o nome ou pegarmos seu nome a partir da
+variável de ambiente <b>DISPLAY</b>, simplesmente colocamos a contante
+<b>NULL</b>. Felizmente isto indica para a biblioteca X utilizar o nome da
+variável <b>DISPLAY</b>, sem no entanto que seja necessário escrever o
+respectivo código com <b>getenv()</b>.
+
+<p>Também introduzimos um descritor novo, <b>event</b>, que irá armazenar os
+eventos enviados pelo servidor X para nossa aplicação. Para habilitar o
+servidor X a enviar eventos, devemos configurar uma <b>máscara de
+eventos</b>:
+
+<ul><pre>
+
+        XSelectInput(display,window,ExposureMask);
+
+</ul></pre>
+
+<p>Neste caso definimos somente um tipo de evento, chamado
+<b>ExposureMask</b>, que solicita ao servidor X que indique para nós quando
+a referida janela tem uma <b>área exposta</b>, ou seja, uma área que deve
+ser redesenhada. Feito isto, basta aguardar o evento. É interessante
+observar que no momento que a janela aparecer na tela, toda a sua área será
+corretamente indicada como exposta, então o tratamento normal do evento de
+redesenho deve preencher sua área exatamente no momento que a janela aparece
+a primeira vez na tela, o que é muito bom. A partir deste momento, então,
+qualquer pequena área da janela que seja exposta irá gerar um evento para
+redesenho.
+
+<p>A manipulação do evento está dentro do loop de eventos:
+
+<ul><pre>
+
+        for(;;) {
+
+                XNextEvent(display,&event);
+        
+                switch(event.type) {
+
+                        case Expose:
+                        
+                                printf("%s: exposed area (%dx%d+%d+%d)\n",p[0],
+                                        event.xexpose.width,
+                                        event.xexpose.height,
+                                        event.xexpose.x,
+                                        event.xexpose.y);
+
+                                XSetForeground(display,gc,black);
+                                XFillRectangle(display,window,gc,16,16,640-32,480-32);
+                                XSetForeground(display,gc,white);
+                                XDrawString(display,window,gc,
+                                        320-XTextWidth(font,message,strlen(message))/2,
+                                        240,
+                                        message,
+                                        strlen(message));   
+
+                                XFlush(display);
+                                break;
+                }
+        }
+
+</ul></pre>
+
+<p>A função <b>XNextEvent()</b> simplesmente aguarda por um novo evento. Se
+um evento é recebido, ele é armazenado no descritor <b>event</b>. Este
+descritor, na verdade, é uma união de estruturas de diversos tipos de
+eventos, no caso ilustramos como o evento deve ser decodificado, acessando o
+membro <b>event.type</b>. Feita a decodificação, por exemplo, para o
+tratamento do evento de área exposta, podemos acessar informações
+particulares a este tipo de evento acessando os membros de
+<b>event.xexpose</b>. Embora seja possível criar uma máscara de desenho e
+redesenhar somente a área efetivamente exposta, vamos simplificar o código e
+simplesmente redesenhar toda a janela quando uma área dela for exposta.
+
+<p>Para melhorar nossa compreensão, vamos aproveitar este exemplo e
+decodificar alguns eventos de teclado e mouse. Antes de mais nada é
+necessário avisar ao servidor X que nos envie alguns eventos extras, o que é
+feito com <b>XSelectInput()</b>:
+
+<ul><pre>
+
+        XSelectInput(display,window,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask);
+
+</ul></pre>
+
+<p>Então basta modificar o segmento que decodifica os eventos extras:
+
+<ul><pre>
+
+                switch(event.type) {
+
+                        case Expose:
+                        
+                                printf("%s: exposed area (%dx%d+%d+%d)\n",
+                                        p[0],
+                                        event.xexpose.width,
+                                        event.xexpose.height,
+                                        event.xexpose.x,
+                                        event.xexpose.y);
+                        
+                                XSetForeground(display,gc,black);
+                                XFillRectangle(display,window,gc,16,16,640-32,480-32);
+                                XSetForeground(display,gc,white);
+                                XDrawString(display,window,gc,   
+                                        320-XTextWidth(font,message,strlen(message))/2,
+                                        240,
+                                        message,
+                                        strlen(message));
+
+                                XFlush(display);
+                                break;
+
+                        case KeyPress:
+                        
+                                i=XLookupKeysym((XKeyEvent *)&event,0);
+                        
+                                printf("%s: pressed key #%d (%c)\n",
+                                        p[0],
+                                        i,i>=32&&i<128?i:'*');
+                                break;
+                                      
+                        case ButtonPress:
+                        
+                                printf("%s: pressed mouse button in (%d,%d)\n",
+                                        p[0],
+                                        event.xbutton.x,
+                                        event.xbutton.y);
+                                break;
+
+                        case ButtonRelease:
+                        
+                                printf("%s: released mouse button in (%d,%d)\n",
+                                        p[0],
+                                        event.xbutton.x,
+                                        event.xbutton.y);
+                                break;
+                }
+
+</ul></pre>
+
+<p>E teremos alguns eventos do mouse e teclado sendo decodificados... alguma
+idéia para aproveitar isto ?
+
+<p><b>HELLO WORLD - PARTE 3: GADGETS</b>
+
+<p>As mentes mais imaginativas devem estar se perguntando, neste exato
+momento, como poderiam aproveitar estas informações para desenvolver alguns
+botões e caixas de texto. De fato, não é algo complexo, podemos personalizar
+a decodificação de eventos para cada tipo de objeto em particular, como no
+exemplo que segue:
+
+<ul><pre>
+
+#include        &lt;X11/Xlib.h>
+#include        &lt;stdio.h>
+#include        &lt;stdlib.h>
+#include        &lt;unistd.h>
+ 
+Display         *display;               // descritor para o servidor X remoto
+Window          window;                 // descritor para janela
+GC              gc;                     // descritor para contexto grafico
+XEvent          event;                  // descritor para eventos recebidos
+XFontStruct     *font;                  // descritor para uma fonte
+int             screen,                 // descritor para um screen no servidor X
+                white,                  // descritor para a cor branca
+                black;                  // descritor para a cor preta
+XGCValues       gcvalues;               // configuracoes do contexto grafico
+
+#define DISPLAY "localhost:0.0"         // nome do servidor X remoto
+#define FONT    "*helvetica*24*"        // nome da fonte a ser utilizada
+
+int button(int x,int y,int w,int h,char *name) {
+
+        switch(event.type) {
+
+                case Expose:
+                case ButtonRelease:
+                
+                        XSetForeground(display,gc,white);
+                        XFillRectangle(display,window,gc,x,y,w,h);
+                        XSetForeground(display,gc,black);
+                        XDrawRectangle(display,window,gc,x,y,w,h);
+                        XDrawString(display,window,gc,
+                                x+w/2-XTextWidth(font,name,strlen(name))/2, 
+                                y+h/2+10,
+                                name,
+                                strlen(name));
+
+                        XFlush(display);
+                        break;
+
+                case ButtonPress:
+                        
+                        if((event.xbutton.x>=x&&event.xbutton.x<=(x+w-1))&&
+                           (event.xbutton.y>=y&&event.xbutton.y<=(y+h-1))) {
+                           
+                                XSetForeground(display,gc,black);
+                                XFillRectangle(display,window,gc,x,y,w,h);
+                                XSetForeground(display,gc,white);
+                                XDrawRectangle(display,window,gc,x,y,w,h);
+                                XDrawString(display,window,gc,
+                                        x+w/2-XTextWidth(font,name,strlen(name))/2,
+                                        y+h/2+10,
+                                        name,
+                                        strlen(name));
+        
+                                XFlush(display);
+                                return(1);
+                        }
+
+        }
+        return(0);
+}
+ 
+int main(int i,char **p) {
+
+        display=XOpenDisplay(DISPLAY);
+
+        if(!display) {
+        
+                printf("can't open display %s\n",DISPLAY);
+                return;
+        }
+
+        screen=DefaultScreen(display);
+        white=WhitePixel(display,screen);
+        black=BlackPixel(display,screen);
+        font=XLoadQueryFont(display,FONT);
+
+        if(!font) {
+
+                printf("can't open font %s\n",FONT);
+                return;
+        }
+         
+        window=XCreateSimpleWindow(display,RootWindow(display,screen),16,16,640,480,0,black,white);
+        gc=XCreateGC(display,window,0,&gcvalues);
+
+        XSelectInput(display,window,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask);
+        XSetFont(display,gc,font->fid);
+
+        XMapWindow(display,window);
+
+        for(;;) {
+
+                XNextEvent(display,&event);
+
+                button(64,64,200,100,"hello world!");
+                if(button(280,64,200,100,"quit")) return(0);
+        }
+}
+ 
+</ul></pre>
+
+<p>Observe como eliminamos a decodificação dos eventos do loop principal, ao
+invés disso temos funções que chamam uma decodificação em particular para
+cada tipo de objeto implementado. Neste exemplo temos somente um tipo de
+botão. Cada vez que um evento é recebido, todos os objetos criados no loop
+de eventos são acionados, de modo que suas diferentes funções são
+desempenhadas, como redesenhar áreas expostas e obedecer aos comandos do
+mouse. No nosso caso, quando acionamos o mouse dentro da área de um destes
+botões, é retornado o valor 1, que pode ser utilizado para acionar uma
+função ou sub-rotina, permitindo então desempenhar alguma tarefa com o
+acionamento do botão na tela. Cada objeto, então, deverá ter uma pequena
+rotina para tratar os eventos deste objeto, como no caso do botão:
+
+<ul><pre>
+
+int button(int x,int y,int w,int h,char *name) {
+
+        switch(event.type) {
+
+                case Expose:
+                case ButtonRelease:
+                
+                        XSetForeground(display,gc,white);
+                        XFillRectangle(display,window,gc,x,y,w,h);
+                        XSetForeground(display,gc,black);
+                        XDrawRectangle(display,window,gc,x,y,w,h);
+                        XDrawString(display,window,gc,
+                                x+w/2-XTextWidth(font,name,strlen(name))/2, 
+                                y+h/2+10,
+                                name,
+                                strlen(name));
+
+                        XFlush(display);
+                        break;
+
+                case ButtonPress:
+                        
+                        if((event.xbutton.x>=x&&event.xbutton.x<=(x+w-1))&&
+                           (event.xbutton.y>=y&&event.xbutton.y<=(y+h-1))) {
+                           
+                                XSetForeground(display,gc,black);
+                                XFillRectangle(display,window,gc,x,y,w,h);
+                                XSetForeground(display,gc,white);
+                                XDrawRectangle(display,window,gc,x,y,w,h);
+                                XDrawString(display,window,gc,
+                                        x+w/2-XTextWidth(font,name,strlen(name))/2,
+                                        y+h/2+10,
+                                        name,
+                                        strlen(name));
+        
+                                XFlush(display);
+                                return(1);
+                        }
+
+        }
+        return(0);
+}
+
+</ul></pre>
+
+<p>Observe como a rotina acima é auto-suficiente: ela permite ao botão se
+desenhar, quando necessário e faz o tratamento do mouse, de acordo com o que
+se espera de um botão na tela (ok, o design não está muito grande coisa, mas
+é um detalhe pequeno melhorar isto :). Mais interessante ainda, o botão como
+entidade não existe: em nenhum momento indicamos ao servidor X que temos um
+botão naquela posição, ao contrário, a cada evento recebido o botão descobre
+se o evento lhe é util ou não. Este tipo de objeto estranho é normalmente
+chamado <b>gadget</b>.
+
+<p>Na verdade estamos criando as bases para um <b>toolkit de gadgets</b>,
+onde todos os objetos gráficos partilham eventos gerados por uma
+<b>única</b> janela. O funcionamento depende de um loop de eventos, de modo
+que o corpo da aplicação está dentro do loop de eventos e é continuamente
+acionado para processar os eventos. Um evento não está relacionado
+especificamente com um gadget, pelo contrário, todos os gadgets devem
+receber o evento e verificar se suas posições ou características funcionais
+são adequadas ao evento. Vale dizer que é possível que um evento seja
+decodificado positivamente por mais de um gadget, além disso uma janela
+muito complexa implica em testar todos os gadgets individualmente, o que
+pode diminuir consideravelmente a performance.
+
+<p>Uma boa referência para este tipo de código está disponível no fonte do
+<b>toolkit XSTEP</b>, onde as versões 1 e 2 foram totalmente baseadas em
+gadgets, portanto existem uma série de bons e completos exemplos de
+implementações de diversas gadgets nestas versões mais antigas. Os fontes de
+todas as versões estão disponíveis no endereço <a
+href=http://xstep.dhs.org>http://xstep.dhs.org</a>.
+
+<p>No XSTEP também existe uma implementação melhor do código que trata o
+evento Expose, permitindo agrupar sucessivas exposições de uma mesma janela
+em uma única máscara de desenho, que permite então efetuar um único
+redesenho somente nas áreas realmente expostas, sem interferir com as
+outras.
+
+<p>Como vimos, os gadgets são uma boa opção, mas talvez exista uma opção
+melhor.
+
+<p><b>HELLO WORLD - PARTE 4: WIDGETS</b>
+
+<p>Se as gadgets são uma boa opção, o que dizer de uma opção que coloca o
+servidor X para trabalhar para nós ? deixemos as gadgets de lado e explorar
+o que existe de mais avançado no servidor X: <b>widgets</b>. As widgets,
+basicamente, são <b>sub-janelas</b> dentro de janelas, de modo que podemos
+ter contextos gráficos <b>individuais</b> para cada widget, incluindo suas
+próprias máscaras de eventos, que passam a ser enviados para widgets
+particulares.
+
+<p>Abaixo temos uma expansão do exemplo anterior para trabalhar com widgets:
+
+<ul><pre>
+
+#include        &lt;X11/Xlib.h>
+#include        &lt;stdio.h>
+#include        &lt;stdlib.h>
+#include        &lt;unistd.h>
+ 
+Display         *display;               // descritor para o servidor X remoto
+Window          window;                 // descritor para janela
+XEvent          event;                  // descritor para eventos recebidos
+XFontStruct     *font;                  // descritor para uma fonte
+int             screen,                 // descritor para um screen no servidor X
+                white,                  // descritor para a cor branca
+                black;                  // descritor para a cor preta   
+XGCValues       gcvalues;               // configuracoes do contexto grafico
+
+struct Widget {
+
+        int             w,h;
+        char            *name;
+
+        Window          window;         // descritor para janela
+        GC              gc;             // descritor para contexto grafico
+
+        void            (*expose)(struct Widget *);
+        void            (*buttonpress)(struct Widget *);
+        void            (*buttonrelease)(struct Widget *);
+        void            (*onclick)(struct Widget *);
+ 
+        struct Widget   *next;
+
+} *wid;                    
+
+#define DISPLAY "localhost:0.0"         // nome do servidor X remoto
+#define FONT    "*helvetica*24*"        // nome da fonte a ser utilizada
+
+void button_expose(struct Widget *t) {
+
+        XSetForeground(display,t->gc,white);
+        XFillRectangle(display,t->window,t->gc,0,0,t->w-1,t->h-1);
+        XSetForeground(display,t->gc,black);
+        XDrawRectangle(display,t->window,t->gc,0,0,t->w-1,t->h-1);
+        XDrawString(display,t->window,t->gc,
+                t->w/2-XTextWidth(font,t->name,strlen(t->name))/2,
+                t->h/2+10,
+                t->name,  
+                strlen(t->name));
+
+                XFlush(display);
+}
+ 
+void button_buttonpress(struct Widget *t) {
+                           
+        XSetForeground(display,t->gc,black);
+        XFillRectangle(display,t->window,t->gc,0,0,t->w-1,t->h-1);
+        XSetForeground(display,t->gc,white);
+        XDrawRectangle(display,t->window,t->gc,0,0,t->w-1,t->h-1);
+        XDrawString(display,t->window,t->gc,
+                t->w/2-XTextWidth(font,t->name,strlen(t->name))/2,
+                t->h/2+10,
+                t->name,  
+                strlen(t->name));
+        
+        XFlush(display);
+
+        if(t->onclick) t->onclick(t);
+}
+
+void button_create(int x,int y,int w,int h,char *name,void (*onclick)(struct Widget *)) {
+ 
+        struct Widget *aux;
+
+        aux=(struct Widget *)malloc(sizeof(struct Widget));
+        aux->window=XCreateSimpleWindow(display,window,x,y,w,h,0,black,white);
+        aux->gc=XCreateGC(display,aux->window,0,&gcvalues);
+
+        XSelectInput(display,aux->window,ExposureMask|ButtonPressMask|ButtonReleaseMask);
+        XSetFont(display,aux->gc,font->fid);
+        XMapWindow(display,aux->window);
+        
+        aux->w=w;
+        aux->h=h;
+        aux->name=name;
+        aux->onclick=onclick;
+        aux->buttonpress=button_buttonpress;
+        aux->expose=button_expose;
+        aux->buttonrelease=button_expose;   
+
+        aux->next=wid;
+        wid=aux;
+}
+
+void quitf(struct Widget *t) {
+ 
+        exit(0);
+}
+
+int main(int i,char **p) {
+
+        struct Widget *aux;
+
+        display=XOpenDisplay(DISPLAY);
+
+        if(!display) {
+        
+                printf("can't open display %s\n",DISPLAY);
+                return;
+        }
+         
+        screen=DefaultScreen(display);
+        white=WhitePixel(display,screen);
+        black=BlackPixel(display,screen);
+        font=XLoadQueryFont(display,FONT);
+
+        if(!font) {
+
+                printf("can't open font %s\n",FONT);
+                return;
+        }
+
+        window=XCreateSimpleWindow(display,RootWindow(display,screen),16,16,640,480,0,black,white);
+
+        XMapWindow(display,window);
+
+        button_create( 64,64,200,100,"hello world!",0);
+        button_create(280,64,200,100,"quit",quitf);   
+
+        for(;;) {
+
+                XNextEvent(display,&event);
+         
+                for(aux=wid;aux;aux=aux->next) {
+
+                        if(event.xany.window==aux->window) {
+                
+                                switch(event.type) {
+                   
+                                        case Expose:
+                                                aux->expose(aux);
+                                                break;
+         
+                                        case ButtonPress:
+                                                aux->buttonpress(aux); 
+                                                break;
+                                   
+                                        case ButtonRelease:
+                                                aux->buttonrelease(aux);
+                                                break;
+                                }
+                        }
+                }
+        }
+}
+ 
+</ul></pre>
+
+<p>Infelizmente o código fica muito mais exigente para trabalharmos com
+widgets, de modo que uma organização muito maior é exigida. A abordagem é
+baseada em <b>call-backs</b>, ou seja, nós criamos as widgets, armazenamos
+as suas informações essenciais em uma estrutura chamada <b>Widget</b> e,
+então, um loop de decodificação de eventos aguarda eventos do servidor X.
+Quando um evento chega, o loop de eventos verifica para qual janela aquele
+evento se destina, varrendo a lista de widgets. Encontrada a janela certa, é
+chamada a respectiva função de tratamento de evento. Os objetos não fazem
+mais parte do loop de eventos, ficando apenas suas informações em uma lista
+de widgets:
+
+<ul><pre>
+
+struct Widget {
+
+        int             w,h;
+        char            *name;
+
+        Window          window;         // descritor para janela
+        GC              gc;             // descritor para contexto grafico
+
+        void            (*expose)(struct Widget *);
+        void            (*buttonpress)(struct Widget *);
+        void            (*buttonrelease)(struct Widget *);
+        void            (*onclick)(struct Widget *);
+ 
+        struct Widget   *next;
+
+} *wid;                    
+
+</ul></pre>
+
+<p>Este tipo de lista tem a vantagem de poder crescer indefinidamente, pois
+toda nova widget criada é inserida no topo da lista, o membro <b>next</b>
+aponta para o topo anterior da lista e assim sucessivamente, até que
+<b>next</b> aponte para um valor nulo, que indica o fim da lista. Cada
+objeto criado no servidor X tem um respectivo objeto na lista:
+
+<p><ul><img src="widget.jpg"></ul>
+
+<p>Nesta estrutura devemos armazenar todas as informações necessárias para
+ter acesso ao objeto durante o tratamento de um evento, pois do contrário
+não saberemos o que fazer com o objeto. Observe ainda a lista de funções que
+são acionadas por eventos: existem funções geradas pelo servidor X, através
+de eventos, e existem também funções não geradas pelo servidor X, mas sim
+por eventos lógicos, como a função <b>onclick()</b>.
+
+<p>Na seqüência do código vemos as funções de tratamento de eventos. Elas
+normalmente são determinísticas, ou seja, elas são acionadas necessáriamente
+por um evento sobre o objeto (de fato, um evento sobre outro objeto jamais
+acionaria uma destas funções por engano: cada evento tem um identificador de
+janela especifico). De certa maneira isto simplifica o código.
+
+<p>Cada objeto também tem uma função <b>construtora</b>, de modo que para o
+objeto existir no servidor X e na lista de widgets, é necessário invocar
+esta função construtora, que se encarrega de criar o objeto. Eventualmente
+seria necessário desenvolver uma função <b>destrutora</b> e, dependendo da
+finalidade do objeto, funções para tratamento de muitos outros tipos de
+eventos.
+
+<p>No final do código principal temos o loop de eventos. Trata-se de um loop
+muito simples, basicamente ele varre a lista de widgets procurando a janela
+a que se destina o evento. Encontrada, ele aciona a respectiva função de
+tratamento de evento. Muitas melhorias poderiam ser adicionadas neste
+código, mas uma boa referência sobre isto está no código fonte do toolkit
+XSTEP, onde as versões 3.x foram desenvolvidas baseadas em widgets, ao invés
+de gadgets como nas versões iniciais. A versão 4.0, embora longe de estar
+pronta, também pode oferecer algum material a respeito de otimizações no
+tratamento de eventos, incluíndo algumas otimizações já citadas.
+
+<p>Embora alguns programadores, a esta altura deste artigo, já estejam
+pensando em um nome para o toolkit que vão começar a escrever dentro de
+cinco minutos, a grande maioria irá concordar que continuar adiante é
+simplesmente muito complexo e desnecessário: já existe uma boa quantidade de
+toolkits prontos e, certamente, existe algum que atenda às nossas
+necessidades.
+
+<p><b>APÊNDICE A</b>
+
+<p>Todos os exemplos do artigo foram devidamente testados e estão
+disponíveis separadamente, em caso de dúvidas. Todos estes exemplos podem
+ser redistribuídos e modificados de acordo com a GNU Public Licence.
+
+<p>Exemplos baseados na biblioteca X:
+
+<ul>
+<li><a href="sources/helloworld-1.c">Hello World parte 1 (hello world)</a><br>
+<li><a href="sources/helloworld-2.c">Hello World parte 1 (com desenho contínuo)</a><br>
+<li><a href="sources/helloworld-3.c">Hello World parte 1 (com desenho contínuo e movimento)</a><br>
+<li><a href="sources/helloworld-4.c">Hello World parte 1 (com desenho contínuo de retângulos)</a><br>
+<li><a href="sources/helloworld-5.c">Hello World parte 1 (com desenho contínuo sobre caixa preta)</a><br>
+<li><a href="sources/helloworld-6.c">Hello World parte 2 (com eventos)</a><br>
+<li><a href="sources/helloworld-7.c">Hello World parte 2 (mostrando outros eventos)</a><br>
+<li><a href="sources/helloworld-8.c">Hello World parte 3 (com gadgets)</a><br>
+<li><a href="sources/helloworld-9.c">Hello World parte 4 (com widgets)</a><br>
+<li><a href="sources/Makefile">Makefile (utilize <b>make</b> para compilar)</a><br>
+</ul>
+
+<p><b>APÊNDICE B</b>
+
+<p>Um material mais elaborado sobre o XSTEP pode ser encontrado no <a
+href="../manual/index.html">XSTEP Reference Manual</a> e no artigo <a
+href="../xstep/index.html">Programação XSTEP</a> (originalmente a segunda
+parte deste mesmo artigo).
+
+</body>

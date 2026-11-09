@@ -1,0 +1,57 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Drawable Box</h1>
+<img src="pictures/box_create.jpg" >
+<blockquote>The XSTEP drawable box is a generic widget with expose and
+broadcast events linked to any user function. If you set the global variable
+animate to any non-zero value, the draw function will be continouslly called.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *box_create(x,y,w,h,draw,color);</tt><tt></tt>
+<p><tt>int x,y,w,h,color;</tt>
+<br><tt>void (*draw)(struct xtree *),int);</tt>
+<p>Create a generic 'drawbox', with a available GC and a minimum configuration,
+in position (x,y), size (w,h) and background 'color'. A function 'draw()'
+will be called in 'broadcast' or 'expose' events. Any additional event
+can be used with this widget. If the option 'animate' has value 1, then
+XSTEP will generate continuous 'broadcast' events (and draw() will be continuously
+called).</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void draw(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!animate) return;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,rand()%256);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillRectangle(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->aw/2+rand()%t->aw-rand()%t->aw,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->ah/2+rand()%t->ah-rand()%t->ah,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rand()%t->aw/4,rand()%t->ah/4);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; downbox(0,0,t->aw,t->ah,invisible,t);
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"box_create");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(8,8,-8,-40,draw,getcolor(-1,0,0));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+In this example, the verification "if(!animate) return;" is only to separate
+expose events from broadcast events (broadcast are generated only if animate
+have a non-zero value, but exposes can be generated).
+<br>&nbsp;</blockquote>
+
+</body bgcolor=white>
+</html>

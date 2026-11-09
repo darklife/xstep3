@@ -1,0 +1,78 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Scrollable List</h1>
+<img src="pictures/scroll_create.jpg" >
+<blockquote>This widget is the good and old (more old than good :)&nbsp;scrollable
+list. With this widget, you can create a big list of strings and see the
+list dinamically inside a scrollable window. For now, the code of this
+widget is considered really a project error in XSTEP&nbsp;3.x and will
+be replaced by the code of x/y scroll widget in future.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *scroll_create(x,y,w,h,ptr,max,list,f);</tt><tt></tt>
+<p><tt>int x,y,w,h,*ptr,*max;</tt>
+<br><tt>char *ptr[];</tt>
+<br><tt>void (*f)(struct xtree *));</tt>
+<p>With this advanced widget you can create a scrollable list of text,
+in position (x,y), size (w,h). The 'list' is a array of strings, with 'max'
+size. The selected option is appointed by 'ptr' and a optional function
+f() can be called by a mouse click.
+<p>This list is a complex object, composed by a main widget, two small
+buttons ('up' and 'down' :), a scrollbar and the 'list', all independent
+widgets: informations are just shared by a checksum in 'list', 'ptr' and
+'max'.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+char&nbsp;&nbsp;&nbsp; buffer[64],&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *list[15]={
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Linux",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "FreeBSD",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "NetBSD",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "OpenBSD",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "NeXTSTEP",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "UnixWare",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Solaris",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SunOS",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Irix",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Minix",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Ultrix",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "AIX",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "A/UX",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "System7",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "OpenVMS",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };
+
+int listptr,listmax=15;
+
+void function(struct xtree *treeptr) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(buffer,list[listptr]);
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"scroll_create");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scroll_create(8,8,-8,-(40+21),&amp;listptr,&amp;listmax,list,function);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(8,-40,-8,21,buffer,gray,left);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+This is a example of a scrollable list. The list is stored in *text[] list,
+with size listmax. If you scroll or click in one item, the function "function()"
+is called (is this case you can copy the item pointed by listptr to any
+buffer :)
+<p>The variable listptr and listmax can be dinamically changed.
+<br>&nbsp;</blockquote>
+
+</body bgcolor=white>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Text Edition</h1>
+<img src="pictures/edit_create.jpg" >
+<blockquote>This widget enable you edit one line of text, with good support
+for non-US characters, navegation keys (like arrows) and verification functions.
+<p>The edition keys are:
+<blockquote><tt>keypad_enter&nbsp;&nbsp;&nbsp; 65421 jump to next editbox</tt>
+<br><tt>key_escape&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 65307 clear buffer</tt>
+<br><tt>key_delete&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 65535 delete right char</tt>
+<br><tt>key_backspace&nbsp;&nbsp; 65288 delete left char</tt>
+<br><tt>key_arrow_left&nbsp; 65361 jump to left char</tt>
+<br><tt>key_arrow_right 65363 jump to right char</tt>
+<br><tt>key_arrow_up&nbsp;&nbsp;&nbsp; 65362 jump to last editbox</tt>
+<br><tt>key_arrow_down&nbsp; 65364 jump to next editbox</tt>
+<br><tt>key_tab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 65289 jump
+to next editbox*</tt>
+<br><tt>key_return&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 65293 jump to next editbox</tt>
+<br><tt>key_home&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 65360 jump to
+first char</tt>
+<br><tt>key_end&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 65367 jump
+to last char</tt>
+<p>* can be reversed w/ shift+tab!</blockquote>
+If you jump to last or next editbox, a broadcast will be generated and
+the formatting function will be called. In addition, many international
+compose keys are available without any special configuration of X11:
+<blockquote><tt>key_agrave&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 224</tt>
+<br><tt>key_aacute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 225</tt>
+<br><tt>key_acircunflex 226</tt>
+<br><tt>key_atilde&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 227</tt>
+<br><tt>key_adiaeresis&nbsp; 228</tt>
+<br><tt>key_egrave&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 232</tt>
+<br><tt>key_eacute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 233</tt>
+<br><tt>key_ecircunflex 234</tt>
+<br><tt>key_ediaeresis&nbsp; 235</tt>
+<br><tt>key_igrave&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 236</tt>
+<br><tt>key_iacute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 237</tt>
+<br><tt>key_icircunflex 238</tt>
+<br><tt>key_idiaeresis&nbsp; 239</tt>
+<br><tt>key_ograve&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 242</tt>
+<br><tt>key_oacute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 243</tt>
+<br><tt>key_ocircunflex 244</tt>
+<br><tt>key_otilde&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 245</tt>
+<br><tt>key_odiaeresis&nbsp; 246</tt>
+<br><tt>key_ugrave&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 249</tt>
+<br><tt>key_uacute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 250</tt>
+<br><tt>key_ucircunflex 251</tt>
+<br><tt>key_udiaeresis&nbsp; 252</tt>
+<br><tt>key_cedila&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 231</tt>
+<br><tt>key_ntilde&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 241</tt>
+<br><tt>key_yacute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 253</tt>
+<br><tt>key_ydiaeresis&nbsp; 255</tt></blockquote>
+The support for text edition in XSTEP was not enhanced since version 2.0
+and will be fully revised in future versions.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *edit_create(x,y,w,h,buffer,size,f);</tt>
+<p><tt>int x,y,w,h,size;</tt>
+<br><tt>char *buffer;</tt>
+<br><tt>void (f*)(struct xtree *));</tt>
+<p>Create a editable textbox in position (x,y) and size (w,h). The 'buffer'
+can be edited.&nbsp; Many keys are accepted for edition and a optional
+callback for a formatting or verification function is available.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+char buffer1[64],buffer2[64];
+
+void function(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(atof(t->b))&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(t->b,"US$ %.02f",atof(t->b));
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; broadcast++;
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"edit_create");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; edit_create(8,8,200,21,buffer1,64,function);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; edit_create(8,8+24,200,21,buffer2,64,function);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+This is just a window with two edit widgets :)
+<p>You can test all cursor keys and tab/shitf+tab keys to navigate in these
+two boxes. If you type enter, up arrow, down arrow, tab or shift+tab, a
+verification function will be called. This verification function will make
+a test: if you type a number, this number will be formated :)</blockquote>
+
+</body bgcolor=white>
+</html>

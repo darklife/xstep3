@@ -1,0 +1,87 @@
+#!/bin/bash
+# Let's create some default values
+
+echo "Writing default values to config.h"
+
+echo "#define VERSION      \"XFPROT 0.12beta\" "		 > config.h
+echo "/*#define DEBUG */" 				>> config.h
+echo "#define XFPROT_DIR  \"/usr/local/xfprot/\"" 		>> config.h
+echo "#define VIRINFO_CMD  \"virinfo.sh\" " 			>> config.h
+echo "#define VIRLIST_CMD  \"virlist.sh\" " 			>> config.h
+echo "#define UPDATE_CMD   \"update.sh\" " 				>> config.h
+echo "#define VIRTEST_CMD  \"virtest.sh\" " 			>> config.h
+echo "#define SCAN_CMD     \"scan.sh\" " 				>> config.h
+echo "#define LICENSE_FILE \"COPYING\" " 				>> config.h
+
+# Check for bash
+
+check=0
+
+which bash 2> /dev/null
+if [ $? == 0 ]; then
+    check=1;
+    echo "Checking for bash.....OK"
+fi
+if [ $check == 0 ] ; then
+      echo "Error: bash......not found"
+      echo "Bash shell is not installed on your operating"
+      echo "system,or it is not in your path variable."
+      echo "Please install it or fix your path variable"
+      echo "If your default shell is bash compatible "
+      echo "it is possible that xfprot runs correctly."
+      echo "You have to test it."
+fi
+# Scripts used by xfprot are for bash, I don't know if an other shell
+# will work, you have to check this yourself.
+
+# Check for a suitable terminal emulator, maybe others will do it as well
+# so feel free to change the list but don't forget to check that the term
+# you choose supports the -e switch (--exec for Eterm).
+
+terminal_list="Eterm xterm rxvt aterm konsole gnome-terminal"
+
+check=0
+
+for term in $terminal_list
+do
+   which $term 2> /dev/null
+   if [ $? == 0 ]; then
+       check=1;
+       echo "Checking for $term.....OK"
+       break
+   fi
+done
+if [ $check == 0 ] ; then
+      echo "Error: terminal......not found"
+      echo "None of the terminal emulators:"
+      echo "$terminal_list"
+      echo "is installed on your operating system,"
+      echo "or their location is not in your path variable."
+      echo "Please install one of them or fix"
+      echo "your path variable, and try again,"
+      echo "or edit config.h manually."
+      echo "/* #define TERMINAL    \"rxvt -e\" */" >> config.h
+      echo "#define TERMINAL    \"\"" >> config.h
+else
+      # Eterm need this hack because some scripts I wrote for
+      # xfprot don't work correctly if using the -e switch
+
+      if [ $term == Eterm ] ; then
+          echo "#define TERMINAL     \"$term --exec\"" >> config.h
+      # Gnome-terminal need this other hack for correct command line parsing
+      elif [ $term == gnome-terminal ] ; then
+              echo "#define TERMINAL    \"$term -x\"" >> config.h
+      else
+          echo "#define TERMINAL    \"$term -e\"" >> config.h
+
+      fi
+fi
+
+echo "/* These are for the about dialog box */"			>> config.h
+echo "#define COPYRIGHT	\"(C) 2002-2003 Tito tito-wolit@tiscali.it released under GPL (see www.gnu.org)\"">> config.h
+echo "#define HOMEPAGE	\"Homepage www.web.tiscali.it/sharp/xfprot/\"">> config.h
+echo "#define WARRANTY_0	\"This program  comes with ABSOLUTELY NO WARRANTY\"">> config.h
+echo "#define WARRANTY_1	\"USE AT YOUR OWN RISK!!!\"">> config.h
+echo "/* These are for the text file viewer */">> config.h
+echo "#define MAXLINES 100000">> config.h
+echo "#define SIZE 1024">> config.h

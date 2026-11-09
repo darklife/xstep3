@@ -1,0 +1,73 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Popup</h1>
+<img src="pictures/popup_create.jpg" >
+<blockquote>This widget is a combination of two widgets:&nbsp;a button
+with the selected option and a popup menu. The menu is actived only if
+the user press the mouse button over the button. Then, a popup menu will
+be opened until the user release the mouse button. The position of mouse
+will be used to determine the selected option and the label of the selected
+option will be moved to the buffer.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *menu_create(x,y,w,h,list,treeptr,f);</tt>
+<br><tt>void popup_create(x,y,w,h,buffer,list,h2);</tt><tt></tt>
+<p><tt>int x,y,w,h,h2;</tt>
+<br><tt>char *buffer,*list[];</tt>
+<br><tt>struct xtree *treeptr;</tt>
+<br><tt>void (*f)(struct xtree *);</tt>
+<br>&nbsp;
+<br>Create a popup menu in position (x,y), size (w,h) and a list of buttons
+labeled by 'list' ('list' is a array of strings). You can select the menu
+or popup:
+<ul>
+<li>
+with 'menu_create' you can callback a function f().</li>
+
+<li>
+with 'popup_create' you can write a buffer.</li>
+</ul>
+The menu_create is now used only with mscroll, but can really be used with
+any other widget.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+char buffer[64]="Solaris";
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char static *list[10]={
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Linux",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "FreeBSD",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "NetBSD",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "OpenBSD",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "NeXTSTEP",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "UnixWare",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Solaris",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SunOS",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Irix",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Minix",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"popup_create");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; popup_create(8,8,200,21,buffer,list,10*21);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(8,8+24,200,21,buffer,gray,left);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+The selected option of the popup will be showed in the label (all operations
+are automatic :)
+<p>An example of menu_create exist in the example of <a href="mscroll_create.html">mscroll</a>
+widget.</blockquote>
+
+</body bgcolor=white>
+</html>

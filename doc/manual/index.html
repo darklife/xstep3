@@ -1,0 +1,555 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.4.18 i586) [Netscape]">
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>
+<font color="#000000">XSTEP Reference Manual</font></h1>
+<img SRC="xtask.jpg" height=370 width=498>
+<p>Copyright (c) 1996-2003 by Marcelo Samsoniuk and contributors.
+<p><b>INTRODUCTION</b>
+<blockquote>This is the <b>XSTEP Referece Manual</b>, a new and improved
+documentation for XSTEP, a faster and small toolkit, designed to make easy
+the creation of C/C++ applications for any UNIX running the
+<a href="http://www.x.org">X
+Window System</a> (version 11, release 4 or later), with the look and feel
+of <a href="http://www.next.com">NeXTSTEP</a>. This documentation was revised
+to be released with XSTEP version 3.5.1.
+<p>XSTEP is a copyrighted public software and you are welcome to redistribute,
+modify and use for any purpose, subject to the conditions listed in the
+Library GNU Public License (LGPL).</blockquote>
+<b>INSTALLING XSTEP</b>
+<blockquote>To compile the XSTEP library in your machine, you must have
+the GNU C compiler, the GNU or BSD make and all basic X Window System headers
+and libraries. In many Linux, BSD and Unix-like systems, with GCC compiler,
+the compilation will be very easy, just type 'make' to compile. In other
+system types, a variable work will be required, in many cases just personalize
+the 'Makefile' in the 'library' directory to your system. Most problems
+in the XSTEP compilation are related to compiler, for example, with standard
+CC in IRIX, XSTEP 3.5 will not compile. If you change the source code to
+compile, XSTEP 3.5 will not open any window! but a beta version of XSTEP
+4.0 will work with little modifications. If you have problems with colors
+and XSTEP 3.5 in big-endian machines, you can change your color depth to
+8 or less bits.
+<p>The XSTEP version 3.x was designed to work in UNIX-like systems, but
+with the correct set of tools and many modifications, you can compile by
+hand static XSTEP applications in UNIX-unlike systems. Of course, the targeted
+system *must* have the X libraries and headers to compile and run applications
+and these applications must be conected to a X server.
+<p>After compiled, you have a shared library to install in your system.
+If you're with the root account of your machine, just type 'make install'
+and the library will be installed in the /usr/local/lib directory (a small
+set of headers will be installed in the /usr/local/include directory).
+If you must deinstall all files, just type 'make uninstall' and the library
+and all headers will be erased from /usr/local/lib and /usr/local/include.
+<p>The installed library is compatible with binary applications compiled
+with XSTEP versions 3.5, 3.4, 3.3, 3.2 and 3.2.1. Many applications compiled
+with XSTEP version 3.1 will work, but many of then can require a recompilation
+to work. If you want to install XSTEP 4.x in the future, you must recompile
+old applications with XSTEP 3.5.1, or yours XSTEP 3.x applications will
+crash when you install the new libxstep.so.4 in your system!
+<p>Applications created before XSTEP version 3.1 don't use this shared
+library, but you can recompile these applications with the last version
+of XSTEP. To compile, you must edit the source file of the old application
+and replace
+<p><tt>&nbsp;&nbsp;&nbsp; #include &lt;xstep.h></tt>
+<p>to:
+<p><tt>&nbsp;&nbsp;&nbsp; #include &lt;xstep-port.h></tt>
+<p>This is a header with macros to convert the old XSTEP syntax to XSTEP
+3.5 syntax. In XSTEP 3.5.1 this header is optional: if you really have
+older XSTEP 2.x applications, you must copy the <tt>xstep-port.h
+</tt>file
+to your /usr/local/include directory.
+<p>A demonstration of XSTEP 2.0 and XSTEP 3.0 applications running with
+XSTEP 3.5 library is available in the 'contrib/demos' directory. Other
+demonstrations will show how work with XSTEP in real applications, with
+many complete examples. To see these demos, you must have the XSTEP 3.5
+compiled
+and installed, then just type:
+<p><tt>&nbsp;&nbsp;&nbsp; cd contrib</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; make</tt>
+<p>And many demonstrations will be compiled. If you find these demos usefulls,
+you can type 'make install' to install all applications in your /usr/local/bin
+directory, to deinstall, just type 'make uninstall'. All specific Linux
+applications will work only in a Linux system with a compatible /proc filesystem,
+if your system isn't a Linux system, applications in directory 'contrib/linuxtools'
+will not be compiled.
+<p>If you need a more easy examples, please check the 'examples' directory,
+you will find many short and clean examples of all XSTEP 3.5 widgets. These
+examples really don't make anything usefull, but you can see all examples
+typing:
+<p><tt>&nbsp;&nbsp;&nbsp; cd examples</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; make</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; make show</tt>
+<br>&nbsp;</blockquote>
+<b>WHAT'S NEW</b>
+<blockquote>There are many good modifications in version 3.x. All widgets
+are subwindows inside others X subwindows and have a enhanced and more
+complete set of events managed by your X server, with better performance
+than old versions of XSTEP. All widgets have serial numbers, for intelligent
+redraws by demand, and now any widget can be resized on demand. New widgets
+are created or others are fully redesigned to work better:</blockquote>
+
+<blockquote>
+<ul>
+<li>
+<b>button: </b>redesigned to support sub window based events and resizable
+windows. In version 3.5, you can put a pixmap in a button.</li>
+
+<li>
+<b>box:</b> created to enable any X11 function or independent application
+work in a subwindow inside a XSTEP resizable window.</li>
+
+<li>
+<b>check:</b> a new widget, for check boxes lists (the checkbox look was
+changed in version 3.3 to be more compatible with the NeXTSTEP look).</li>
+
+<li>
+<b>radio:</b> an old widget, for radio boxes lists, in fact is just a checkbox
+w/ modified look.</li>
+
+<li>
+<b>menu:</b> a new widget for menus. if you click with the right button
+of your mouse, you can open a popup menu.</li>
+
+<li>
+<b>popup:</b> a new widget for popups, based in menu, for selection lists.</li>
+
+<li>
+<b>edit:</b> changed to support focusin/focusout of keyboard in a sub window,
+with checksums for better and faster redraw events. The keyboard work just
+how in the version 2.x, supporting a subset of the ISO/ECMA KEYSYMs defined
+in X11R4, in any PC/Workstation US keyboard, to create these international
+characters:</li>
+</ul>
+
+<table CELLSPACING=0 CELLPADDING=2 COLS=9 WIDTH="90%" BGCOLOR="#808080" NOSAVE >
+<tr BGCOLOR="#000000" NOSAVE>
+<td NOSAVE>
+<center>&nbsp;</center>
+</td>
+
+<td NOSAVE>
+<center><font color="#FFFFFF">a</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">e</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">i</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">o</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">u</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">y</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">n</font></center>
+</td>
+
+<td>
+<center><font color="#FFFFFF">c</font></center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td BGCOLOR="#000000" NOSAVE>
+<center><font color="#FFFFFF">grave (`)</font></center>
+</td>
+
+<td NOSAVE>
+<center>&agrave;</center>
+</td>
+
+<td>
+<center>&egrave;</center>
+</td>
+
+<td>
+<center>&igrave;</center>
+</td>
+
+<td>
+<center>&ograve;</center>
+</td>
+
+<td>
+<center>&ugrave;</center>
+</td>
+
+<td>
+<center>&yacute;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&ccedil;</center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td BGCOLOR="#000000" NOSAVE>
+<center><font color="#FFFFFF">acute (')</font></center>
+</td>
+
+<td>
+<center>&aacute;</center>
+</td>
+
+<td NOSAVE>
+<center>&eacute;</center>
+</td>
+
+<td NOSAVE>
+<center>&iacute;</center>
+</td>
+
+<td>
+<center>&oacute;</center>
+</td>
+
+<td>
+<center>&uacute;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td BGCOLOR="#000000" NOSAVE>
+<center><font color="#FFFFFF">circumflex(^)</font></center>
+</td>
+
+<td>
+<center>&acirc;</center>
+</td>
+
+<td>
+<center>&ecirc;</center>
+</td>
+
+<td>
+<center>&icirc;</center>
+</td>
+
+<td>
+<center>&ocirc;</center>
+</td>
+
+<td>
+<center>&ucirc;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td BGCOLOR="#000000" NOSAVE>
+<center><font color="#FFFFFF">tilde(~)</font></center>
+</td>
+
+<td>
+<center>&atilde;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td NOSAVE>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&otilde;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&ntilde;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td BGCOLOR="#000000" NOSAVE>
+<center><font color="#FFFFFF">diaeresis(")</font></center>
+</td>
+
+<td NOSAVE>
+<center>&auml;</center>
+</td>
+
+<td>
+<center>&euml;</center>
+</td>
+
+<td>
+<center>&iuml;</center>
+</td>
+
+<td>
+<center>&ouml;</center>
+</td>
+
+<td>
+<center>&uuml;</center>
+</td>
+
+<td>
+<center>&yuml;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+
+<td>
+<center>&nbsp;</center>
+</td>
+</tr>
+</table>
+
+<ul>This support is available too for NeXTaw-0.5.1 in <a href="http://xstep.dhs.org">http://xstep.dhs.org</a>.
+In recent versions, a verification function can be used to change and process
+the typed data when you change to other widget.
+<li>
+<b>label:</b> changed to just manage label texts in sub windows and support
+for resizable windows.</li>
+
+<li>
+<b>window:</b> changed to work better with window managers, now support
+a more "soft" close window and resizable windows automatically (if a window
+is resized, all widgets are moved or resized). in version 3.2 and later,
+the first XSTEP window of any application will generate the correct informations
+to be docked in the Window Maker's dock.</li>
+
+<li>
+<b>scroll:</b> fully redesigned to work [very-very-very] better than versions
+1.x and 2.x, with many sub windows and support for resizable windows and
+multiple lists. In version 3.2 all bugs are fixed and now XSTEP can handle
+lists with multiple columns of text, 'double click' and 'right button click'
+functions! :)</li>
+</ul>
+In version 3.3 many small bugs are corrected and new <b>group</b> and <b>xyscroll</b>
+widget are introduced:
+<ul>
+<li>
+<b>group:</b> you can separate groups of widgets in the group sub window.</li>
+
+<li>
+<b>xyscroll:</b> you can scroll a group of widgets in horizontal and/or
+vertical plane. This widget will replace all other scroll widgets in future
+versions.</li>
+</ul>
+In version 3.3 all widgets are created with a default GC (X graphic context)
+and the creator function return a pointer to a xtree object, to avoid references
+to 'treestk'.
+<p>In the version 3.4, XPM pixmaps are supported and the license was changed
+from GPL to LGPL. Many bugs corrected, many documentation and examples
+are now part of XSTEP 3.5 package. This package is available in the standard
+site (<a href="http://xstep.dhs.org"> http://xstep.dhs.org </a>), in any
+sunsite mirror (
+<a href="ftp://sunsite.unc.edu/pub/Linux/libs/X/clibs">ftp://sunsite.unc.edu/pub/Linux/libs/X/clibs
+</a>)</blockquote>
+<b>RESIZABLE WIDGETS</b>
+<blockquote>Many widgets can be automatically moved or resized. To enable
+automatic motion, just use negative coordinates for <b>(x,y)</b> positions
+relative to bottom right corner of window. For automatic resize, use negative
+coordinates for <b>(w,h)</b> sizes, relative to bottom right corner of
+window. Please check: motion and resize are exclusive options: if your
+widget is moved, it can't be resized; if your widget is resized, it can't
+be moved :)
+<p>examples of moveable widgets:
+<blockquote><tt>button_create( 4, 4,200,21,"upper/left",0);</tt>
+<br><tt>button_create(-4, 4,200,21,"upper/right",0);</tt>
+<br><tt>button_create( 4,-4,200,21,"bottom/left",0);</tt>
+<br><tt>button_create(-4,-4,200,21,"bottom/right",0);</tt></blockquote>
+examples of resizable widgets:
+<blockquote><tt>button_create(4,4, -4,-4,"unfixed width/height",0);</tt>
+<br><tt>button_create(4,4,200,-4,"unfixed height",0);</tt>
+<br><tt>button_create(4,4, -4,21,"unfixed width",0);</tt>
+<br><tt>button_create(4,4,200,21,"fixed and unmovable",0);</tt></blockquote>
+You can create many combinations, please see more sample codes in XSTEP
+examples.</blockquote>
+<b>CHECKSUMS</b>
+<blockquote>Many widgets have checksums of these structures and can be
+automatically redrawed, if you modify any data, without intervention of
+your program. For many widgets, checksums are automatically created, if
+you modify any data structure, you can force a checksum verify with:
+<blockquote><tt>broadcast++;</tt></blockquote>
+or a continuous checksum verification (for animation) with:
+<blockquote><tt>animate=1;</tt></blockquote>
+you can see samples of animation and checksums of data in XSTEP examples.</blockquote>
+<b>CREATING APPLICATIONS</b>
+<blockquote>To create XSTEP applications you must compile and install the
+XSTEP library, then you can create a C file, like 'xhelloworld.c':
+<ul><tt>#include &lt;xstep.h></tt>
+<p><tt>void xmain(int i,char **p) {</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"My First Application!");</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; label_create(0,0,0,0,"Hello World!",gray,up);</tt>
+<br><tt>}</tt></ul>
+<i>Warning! XSTEP 3.x applications start with xmain(), not main()!</i>
+<p>The compilation if X applications by hand is a hard task and is high
+recommendable to you use a Makefile file, like this:
+<blockquote><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CC = gcc</tt>
+<br><tt>&nbsp;CPUFLAGS = -Wall -O3 -m486</tt>
+<br><tt>&nbsp;&nbsp; INCDIR = -I/usr/X11R6/include -I/usr/local/include</tt>
+<br><tt>&nbsp;&nbsp; LIBDIR = -L/usr/X11R6/lib -L/usr/local/lib</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; LIBS = -lX11 -lxstep</tt>
+<br><tt>&nbsp;&nbsp; CFLAGS = $(CPUFLAGS) $(INCDIR)</tt>
+<br><tt>&nbsp; LDFLAGS = $(LIBDIR) $(LIBS)</tt>
+<p><tt>TARGETS = xhelloworld</tt>
+<p><tt>all: $(TARGETS)</tt>
+<p><tt>clean:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; -rm -f $(TARGETS) core</tt></blockquote>
+with this Makefile, you can just type 'make' to compile :)
+<p>If you write others small applications, just add these to TARGETS variable
+inside your Makefile:
+<blockquote><tt>TARGETS = xhelloworld xpagemaker xphotoshop</tt></blockquote>
+and then retype 'make' :)
+<p>A more complete reference of XSTEP programming can be found in:
+<ul>
+<li>
+<a href="window_create.html">window</a></li>
+
+<li>
+<a href="button_create.html">buttons</a></li>
+
+<li>
+<a href="check_and_radio_create.html">check and radio</a></li>
+
+<li>
+<a href="edit_create.html">text edition</a></li>
+
+<li>
+<a href="label_create.html">label</a></li>
+
+<li>
+<a href="label_create_advanced.html">periodic table of XSTEP labels</a></li>
+
+<li>
+<a href="popup_create.html">popup</a></li>
+
+<li>
+<a href="scroll_create.html">scrollable list</a></li>
+
+<li>
+<a href="mscroll_create.html">scrollable multiple lists</a></li>
+
+<li>
+<a href="resizable_window.html">resizable window</a></li>
+
+<li>
+<a href="box_create.html">drawable box</a></li>
+
+<li>
+<a href="group.html">groups</a></li>
+
+<li>
+<a href="animation.html">animations</a></li>
+
+<li>
+<a href="group_gc.html">graphic context with groups</a></li>
+
+<li>
+<a href="window_gc.html">graphic context with windows</a></li>
+
+<li>
+<a href="xyscroll_create.html">x/y scroll box</a></li>
+
+<li>
+<a href="dialog_create.html">dialog box</a></li>
+
+<li>
+<a href="xtree.html">xtree struct</a></li>
+
+<li>
+<a href="pixmap.html">pixmaps</a></li>
+
+<li>
+<a href="finetune_create.html">fine tune</a></li>
+</ul>
+</blockquote>
+<b>BUGS</b>
+<blockquote>XSTEP is designed to run in any UNIX machine with X11R4 or
+later. For now, XSTEP was tested in many Linux and BSD systems (all little-endian,
+32 bit machines), running with X11R6.x, without problems, but you can have
+problems in other UNIX machines and *many* problems in non-UNIX machines.
+<p>Well, all bugs will be corrected in the future XSTEP version 4.0, now
+in development. If you're interested in work with XSTEP 4.0, please check
+the XSTEP site.</blockquote>
+<b>TODO</b>
+<blockquote>Nothing to do, XSTEP 3.x development is really stopped! If
+you want do create new widgets, please get the version 4.0, available in
+the XSTEP CVS server (see http://xstep.dhs.org for more informations about
+XSTEP 4.0). A object oriented version of XSTEP 4.0 in C++ is planned by
+CRG, you can subscribe the XSTEP Development List to get more informations.</blockquote>
+<b>CREDITS</b>
+<blockquote>This software contains parts developed and copyrighted by Marcelo
+Samsoniuk, Gleicon S. Moraes, Paulo Cesar Pereira de Andrade, Joao Carlos
+Mendes Luis, Claudio Matsuoka, Everton da Silva Marques, Alexandre Nunes,
+Cassio, Augusto Cesar, Joicimar Aguiar Rocco, Cesar Ricardo Gimenes, Marcello
+Barisonzi, Tito Ragusa, Lucas Mendes and many others.</blockquote>
+<b>FOR MORE INFORMATION</b>
+<blockquote>Many versions of XSTEP and related applications can be found
+in:
+<blockquote><a href="../../../index.html">http://xstep.sourceforge.net</a></blockquote>
+Suggestions, comments and problem reports related to XSTEP are welcome
+and can be send
+<br>to XSTEP development list (you must be a subscriber to post, look at
+XSTEP page how be a subscriber).
+<p>A good reference in portuguese is the paper <a href="../xstep/index.html">'Programacao
+XSTEP'</a>.
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

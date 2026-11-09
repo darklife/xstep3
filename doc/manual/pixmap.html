@@ -1,0 +1,71 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; I; Linux 2.2.13 i586) [Netscape]">
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>
+Pixmaps</h1>
+
+<blockquote><img SRC="pictures/pixmap.jpg" height=179 width=401>
+<p>The XSTEP pixmap support enable you to use pixmaps in XPM format. Only
+'type 1' pixmaps are supported, in a more correct language, you must reduce
+the number of pixmap colors.</blockquote>
+<b>SYNTAX</b>
+<blockquote>
+<blockquote><tt>#include "mozilla.xpm"</tt>
+<p><tt>...</tt>
+<p><tt>struct xtree *t;</tt>
+<p><tt>...</tt>
+<p><tt>mkpixmap(mozilla,t);</tt>
+<br>&nbsp;</blockquote>
+Load to X server pixmap and link to any XSTEP widget. Pixmaps can work
+with buttons, others widgets requires extra code to draw the pixmap.</blockquote>
+<b>EXAMPLES</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+#include "mozilla.xpm"
+
+void draw(struct xtree *treeptr) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XCopyArea(display,treeptr->pix,treeptr->win,treeptr->gc,0,0,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; treeptr->wpix,treeptr->hpix,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (treeptr->aw-treeptr->wpix)/2,(treeptr->ah-treeptr->hpix-14)/2);
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *t;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"box_create_xpm");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t=box_create(8,8,64,64,draw,gray);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mkpixmap(mozilla,t);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+In this small example, a window will be created with a box, a pixmap is
+created in the X server and linked to box widget. The callback function
+<b>draw()</b>
+copy the pixmap to the box in expose events.
+<blockquote><tt>#include &lt;xstep.h></tt>
+<br><tt>#include "mozilla.xpm"</tt>
+<p><tt>void xmain(int n,char *p[]) {</tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *t;</tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"button_create");</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t=button_create( -8,-8,72,72,"close",window_close);</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mkpixmap(mozilla,t);</tt>
+<br><tt>}</tt></blockquote>
+
+<p><br>In this example, the pixmap is created in the X server and linked
+to a button widget, but isn't necessary any draw function (this is the
+only special case, all others widgets can't detect any pixmap, you must
+draw the pixmap in expose events).
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

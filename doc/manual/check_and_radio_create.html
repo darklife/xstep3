@@ -1,0 +1,54 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Check and Radio</h1>
+<img src="pictures/check_and_radio_create.jpg" height=210 width=400>
+<blockquote>The checkbox and radiobox are useful for selection of multiple
+exclusive (radio)&nbsp;and non-exclusive (check)&nbsp;options. These widgets
+just mark the selected options in flags.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *check_create(x,y,w,h,label,buffer);</tt>
+<br><tt>void radio_create(x,y,w,h,label,buffer);</tt><tt></tt>
+<p><tt>int x,y,w,h;</tt>
+<br><tt>char *label,*buffer;</tt>
+<p>Create a checkbox or a radiobox in position (x,y), size (w,h) and label
+'label'. In 'broadcast' events, this object compare your label with buffer
+variable: if is equal, then this object is 'actived', else this object
+is 'deactived'. If you click in this object, the 'label' value is placed
+in the 'buffer', this object is 'actived' and 'broadcast' is incremented
+by one.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+char&nbsp;&nbsp;&nbsp; flagone[64],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flagtwo[64],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flagthr[64];
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"check and radio_create");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; check_create(8,8+0*21,400,21,"NCR53810 support",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flagone);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; check_create(8,8+1*21,400,21,"AMD79900 support",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flagtwo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create(8,8+3*21,400,21,"MC68040 optimization",&nbsp;&nbsp;&nbsp; flagthr);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create(8,8+4*21,400,21,"MC68030 optimization",&nbsp;&nbsp;&nbsp; flagthr);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+The check box is for non-exclusive options and the radio box is for exclusive
+options. In this example you can have a NCR and/or a AMD controller (or
+none :), but you must choose a 68030 or a 68040 processor, but only one
+processor can be selected :). To set a flag, the check or radio boxes will
+copy the ascii string of the box label to this flag.</blockquote>
+
+</body bgcolor=white>
+</html>

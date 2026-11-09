@@ -1,0 +1,47 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; I; Linux 2.2.13 i586) [Netscape]">
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>
+Fine Tune</h1>
+<img SRC="pictures/finetune_create.jpg" >
+<blockquote>This widget create a control for fine tunning of integers between
+two limits.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>int x,y,value,min,max;</tt><tt></tt>
+<p><tt>void finetune_create(x,y,&amp;value,&amp;min,&amp;max);</tt>
+<br><tt></tt>&nbsp;</blockquote>
+
+<blockquote>Create a fine tune widget in the position x,y. The integer
+value can be incremented or decremented by one between the max and min
+limits.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote><tt>#include &lt;xstep.h></tt><tt></tt>
+<p><tt>char buffer[64];</tt><tt></tt>
+<p><tt>int value,min,max;</tt><tt></tt>
+<p><tt>void calcf(struct xtree *w) {</tt><tt></tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(buffer,"value
+from fine tune is %d (min %d, max %d)",</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value,min,max);</tt>
+<br><tt>}</tt><tt></tt>
+<p><tt>void xmain(int n,char *p[]) {</tt><tt></tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *win;</tt><tt></tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min=-100;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max=100;</tt><tt></tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; win=window_create(0,0,400,180,"finetune_create");</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; win->broadcast=calcf;</tt><tt></tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,0,buffer,invisible,center);</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; finetune_create(8,8,&amp;value,&amp;min,&amp;max);</tt>
+<br><tt>}</tt>
+<br><tt></tt>&nbsp;</blockquote>
+This example show the fine tune widget in action.
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

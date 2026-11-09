@@ -1,0 +1,68 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i586) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Graphic Contexts with Windows</h1>
+<img SRC="pictures/window_gc.jpg" height=210 width=400>
+<blockquote>A graphic context (GC) is a standard way in the X Window System
+to draw inside any widget (any XSTEP widget are by default created with
+a GC). To use the GC, you must get a small set of magic values from the
+xtree structure of the widget:
+<blockquote>
+<li>
+<b>t->aw</b> is the real width of a widget</li>
+
+<li>
+<b>t->ah</b> is the real height of a widget</li>
+
+<li>
+<b>t->gc</b> is the defalt GC of a widget</li>
+
+<li>
+<b>t->win</b> is the subwindow of a widget</li>
+
+<li>
+<b>display</b> and <b>screen</b> are the display and screen of a widget.</li>
+</blockquote>
+In future, this section will be enhanced to be more clean :)</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void draw(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!animate) return;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,rand()%256);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillRectangle(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->aw/2+rand()%t->aw-rand()%t->aw,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->ah/2+rand()%t->ah-rand()%t->ah,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rand()%t->aw/4,rand()%t->ah/4);
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *win;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; win=window_create(0,0,400,180,"window_gc");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; win->broadcast=draw;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+This is a example how use the GC of any XSTEP window: work just how any
+GC inside a box or group. Please see how create an <a href="animation.html">animation</a>
+:) To use a GC the good way is see the <a
+href="../../contrib/linuxtools/xsteptask.c">xsteptask</a>
+and <a href="../../contrib/demos/xstepgears.c">xstepgears</a> applications.</blockquote>
+
+</body bgcolor=white>
+</html>

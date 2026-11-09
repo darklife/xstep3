@@ -1,0 +1,44 @@
+No changelogs available before Xfprot-0.10beta
+
+28-01-2003 Version 0.11beta
+
+Added getenv() to detect to home directory of the user;
+
+Fixed a bug in file_select() not releasing the lock=1
+(to lock=0) when the Cancel Button was pressed;
+
+09-02-2003
+
+Created internal text file viewer applet
+for displaying License and reports;
+Removed report.sh license.sh;
+Removed -wrap checkbox from gui;
+Added run() to remove duplicate code;
+Removed readlog.c and changed Makefile;
+
+11-02-2003
+Changed XFPROT_HOME with XFPROT_DIR;
+Rewrote run(), fprot_virinfo(),
+fprot_virlist(), fprot_update(),
+fprot_test(), view_report(),
+read_license();
+Added vf_window();
+
+12-02-2003
+Changed scan_f();
+Added add_to_command();
+Removed unused vars;
+
+13-02-2003
+Remove add_to_command()
+Revert scan_f();
+Fix memory corruption in run() and scan_f();
+
+14-02-2003
+Changed scan_f();
+Added add_to_command();
+Removed unused vars;
+Fix memory corruption in add_to_command() and scan_f();
+
+15-02-2003
+Pop up version number to 0.12beta

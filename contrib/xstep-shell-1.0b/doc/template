@@ -1,0 +1,80 @@
+#!/bin/bash
+########  Program name and auxiliary help file name for displaying correctly the ABOUT function
+prog_name=
+help_file_name=
+about()
+{
+	echo "  This is the $prog_name an example script for the xstep-shell 0.14 package ">$HOME/$help_file_name
+	echo "  based on the XSTEP 3.5.1 - Toolkit for X Window System - ">>$HOME/$help_file_name
+	echo "  Copyright (C) 1996-2000 by Marcelo Samsoniuk">>$HOME/$help_file_name
+	echo " ">>$HOME/$help_file_name
+	echo "  This program is free software; you can redistribute it and/or modify">>$HOME/$help_file_name
+	echo "  it under the terms of the GNU General Public License as published by">>$HOME/$help_file_name
+	echo "  the Free Software Foundation; either version 2 of the License, or">>$HOME/$help_file_name
+	echo "  (at your option) any later version.">>$HOME/$help_file_name
+	echo "  ">>$HOME/$help_file_name
+	echo "  This program is distributed in the hope that it will be useful,">>$HOME/$help_file_name
+	echo "  but WITHOUT ANY WARRANTY; without even the implied warranty of">>$HOME/$help_file_name
+	echo "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the">>$HOME/$help_file_name
+	echo "  GNU General Public License for more details.">>$HOME/$help_file_name
+	echo "  ">>$HOME/$help_file_name
+	echo "  You should have received a copy of the GNU General Public License">>$HOME/$help_file_name
+	echo "  along with this program; if not, write to the Free Software">>$HOME/$help_file_name
+	echo "  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA">>$HOME/$help_file_name
+	echo " ">>$HOME/$help_file_name
+	echo "  xstep-shell 0.14 (C) 2001-2002 by Tito Ragusa email: tito-wolit@tiscalinet.it">>$HOME/$help_file_name  
+	echo "  ">>$HOME/$help_file_name
+	xstep-shell -t $prog_name -vf $HOME/$help_file_name 
+	rm -f $HOME/$help_file_name
+}
+
+x_click_exit_click()
+{
+# this to kill the process if x  in the titlebar or a button labeled exit is clicked
+set -- $out
+if [ "$1" = "Exit" ] 2>/dev/null ; then  
+	if [ $child_pid -gt 0 ] 2>/dev/null ;then   #### this to kill some process you have started from the gui and is running in background
+		kill $child_pid
+	fi
+	close_it=0
+	kill  $$ 
+fi
+if [ $1 =  ] 2>/dev/null ; then  
+	if [ $child_pid -gt 0 ] 2>/dev/null ;then
+		kill $child_pid
+	fi
+	close_it=0
+	kill  $$ 
+fi
+}
+
+clean_out()  ######## maybe not needed  
+{
+out=
+}
+
+close_win()
+{
+# close the last window, but let script run
+check=`ps | grep -c xstep-shell`
+pid=`ps | grep xstep-shell| cut -b 1-6`
+# checking if window was already closed by clicking x or exit
+if [ $check = 1 ] ; then 
+	kill $pid
+else
+kill $$
+fi
+}
+
+
+# main
+#close_it=1 
+#while [ $close_it = 1 ]   ######### Use this while cycle if you  want that your prog returns always to his main window
+#do
+
+#### Put your own stuff here ####
+
+#done
+
+
+

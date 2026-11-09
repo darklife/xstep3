@@ -1,0 +1,1752 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; I; Linux 2.2.16 i586) [Netscape]">
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>
+PROGRAMA&Ccedil;&Atilde;O XSTEP</h1>
+
+<h6>
+Copyright (c) 2000 by <a href="mailto:marcelos AT bsi.com.br">Marcelo Samsoniuk</a>
+Todos os programas exemplo deste artigo podem ser redistribu&iacute;dos
+e modificados de acordo com a GNU Public Licence. Este artigo originalmente
+foi produzido em duas partes, a primeira abordando a programa&ccedil;&atilde;o
+X baseada diretamente na X library, a segunda baseado no toolkit XSTEP,
+no final do artigo existem links para a primeira parte do artigo, especifico
+sobre a X library.
+<li>
+<i>Aten&ccedil;&atilde;o: os exemplos com XSHM sairam anteriormente com
+um erro no c&oacute;digo, onde havia XPutImage(), leia-se
+<b>XShmPutImage()</b>,
+essa falha mascara um acesso inv&aacute;lido ao descritor <b>shminfo</b>
+e provavelmente reduz a performance efetiva.</i></li></h6>
+
+<p><br><b>INTRODU&Ccedil;&Atilde;O</b>
+<p>Quando o X foi criado, n&atilde;o existiam muitas op&ccedil;&otilde;es,
+exceto o toolkit
+<b>athenas</b>. Grande parte das aplica&ccedil;&otilde;es
+cl&aacute;ssicas, como o xterm, xedit, xcalc, xclipboard, etc s&atilde;o
+baseados no athenas (tamb&eacute;m chamado de
+<b>Xaw</b>). Embora o athenas
+pare&ccedil;a ter ca&iacute;do em desuso nos &uacute;ltimos anos, existem
+varia&ccedil;&otilde;es com look-and-feel mais modernos deste toolkit,
+como o NeXTaw, Xaw3D e Xaw95.
+<p>De fato, o princ&iacute;pio da d&eacute;cada foi marcado por uma disputa
+entre o Open Look da Sun (cujas aplica&ccedil;&otilde;es podem ser produzidas
+com o toolkit
+<b>XView</b>) e o CDE da OSF (cujas aplica&ccedil;&otilde;es
+s&atilde;o produzidas com o toolkit
+<b>Motif</b> da OSF). Em um certo momento
+a Sun desistiu de lutar e acabou por adotar o CDE nas suas esta&ccedil;&otilde;es
+UNIX, tornando o CDE o look-and-feel padr&atilde;o dos UNIX comerciais.
+Como se trata de um produto comercial, com custos relativamente altos,
+o CDE n&atilde;o emplacou na outra metade do mercado, representado pelas
+varia&ccedil;&otilde;es livres, como o Linux e FreeBSD, deixando o territ&oacute;rio
+aberto para toolkits com licen&ccedil;as mais flex&iacute;veis, como o
+<b>QT</b>,
+utilizado no projeto KDE (nitidamente um projeto tentando fornecer um CDE
+livre) e o GTK, toolkit utilizado no famoso GIMP e atualmente utilizado
+no projeto GNOME (com os mesmos objetivos do KDE). O GTK e o QT, em princ&iacute;pio,
+produzem aplica&ccedil;&otilde;es com o look-and-feel do CDE.
+<p>Buscando um look-and-feel diferente do tradicional CDE ou OpenLook,
+aparecem projetos interessantes, como o <b>WINGs</b> e o <b>XSTEP</b>.
+O WINGs &eacute; o toolkit utilizado pelo Window Maker e seus pequenos
+utilit&aacute;rios, permitindo, portanto, o desenvolvimento de pequenas
+aplica&ccedil;&otilde;es com o look-and-feel do NeXTSTEP. Infelizmente
+a programa&ccedil;&atilde;o parece um pouco pesada, de modo que se programa
+diretamente na biblioteca X e o WINGs fornece alguma ajuda.
+<p>O XSTEP tamb&eacute;m &eacute; um toolkit com o look-and-feel do NeXTSTEP,
+mas seu projeto &eacute; bem mais antigo e passou por uma s&eacute;rie
+de modifica&ccedil;&otilde;es com o passar dos anos, tornando-se extremamente
+compacto, eficiente e f&aacute;cil de programar. Muitos programadores que
+consideram o X muito complexo e ineficiente podem ter uma boa surpresa
+com o XSTEP. O fonte do toolkit tamb&eacute;m &eacute; uma valiosa refer&ecirc;ncia
+para os programadores interessados em desenvolver seu pr&oacute;prio toolkit,
+pois o c&oacute;digo &eacute; bem leg&iacute;vel, compacto e eficiente.
+O XSTEP costuma mudar os conceitos das pessoas frente ao X, portanto vamos
+experimentar escrever algumas pequenas aplica&ccedil;&otilde;es com ele.
+<p><b>INSTALANDO O XSTEP</b>
+<p>Existem 4 vers&otilde;es principais do XSTEP. As vers&otilde;es 1.2
+e 2.0 s&atilde;o vers&otilde;es antigas, baseadas em gadgets e podem ter
+alguma utilidade como refer&ecirc;ncia para programadores interessados
+em escrever algum toolkit baseado em gadgets. A vers&atilde;o 4.0 est&aacute;
+em desenvolvimento e restam as varia&ccedil;&otilde;es da vers&atilde;o
+3.0, sendo a 3.5.1 a vers&atilde;o mais atualizada. As &uacute;ltimas vers&otilde;es
+do XSTEP est&atilde;o dispon&iacute;veis no endere&ccedil;o <a href="http://xstep.dhs.org">http://xstep.dhs.org</a>
+ou <a href="ftp://sunsite.unc.edu/pub/Linux/libs/X/clibs">ftp://sunsite.unc.edu/pub/Linux/libs/X/clibs</a>
+(inclusive em CDs de mirrors da sunsite). Se a vers&atilde;o dispon&iacute;vel
+no mirror da sunsite for um pouco antiga, n&atilde;o existem muitos problemas,
+salvo alguns recursos novos e algumas melhorias, os aplicativos compilados
+nas vers&otilde;es 3.x antigas tem compatibilidade bin&aacute;ria com a
+biblioteca da &uacute;ltima vers&atilde;o (atualmente 3.5.1). Aplicativos
+compilados com a vers&atilde;o 2.0 e 3.0 podem ser facilmente recompiladas
+com poucas modifica&ccedil;&otilde;es (existem exemplos de como fazer isto
+na vers&atilde;o 3.5.1).
+<p>Com a &uacute;ltima vers&atilde;o do XSTEP em m&atilde;os, podemos fazer
+a instala&ccedil;&atilde;o facilmente:
+<ul>
+<pre>
+tar xzpvf xstep-3.5.tar.gz
+cd xstep-3.5/library
+make install</pre>
+</ul>
+Uma vez instalado o XSTEP, &eacute; poss&iacute;vel rodar alguma aplica&ccedil;&atilde;o
+de exemplo que acompanhe o pacote para se certificar de que a biblioteca
+est&aacute; corretamente instalada, no diretorio examples e contrib existem
+muitas aplicacoes de teste e exemplo.
+<p><b>HELLO WORLD - PARTE 5: POWERED BY XSTEP</b>
+<p>Embora nem todo toolkit seja compacto como o XSTEP, &eacute; certo que
+algum toolkit simplifica razo&aacute;velmente o c&oacute;digo, pelo simples
+motivo de que todo o tratamento de eventos e gerenciamento de objetos passa
+a ser feito automaticamente. Podemos comparar nossos exemplos anteriores
+com a simplicidade de um produzido com um toolkit:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,640,480,"hello world!",invisible,center);
+}
+
+</pre>
+</ul>
+Muita aten&ccedil;&atilde;o! no XSTEP os programas come&ccedil;am com <b>xmain()</b>,
+de modo que a fun&ccedil;&atilde;o <b>main()</b> verdadeira est&aacute;
+escondida dentro das entranhas do toolkit, o que facilita a programa&ccedil;&atilde;o
+consideravelmente.
+<p>A compila&ccedil;&atilde;o fica um pouco mais complicada, pois precisamos
+incluir os caminhos tanto da biblioteca e cabe&ccedil;alho do X quanto
+do XSTEP, ent&atilde;o fica mais f&aacute;cil escrever um arquivo <b>Makefile</b>:
+<ul>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CC&nbsp; = gcc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CFLAGS&nbsp; = -Wall -O3 -funroll-loops -fomit-frame-pointer -pipe
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CFLAGS += -I/usr/X11R6/include -I/usr/X11/include
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CFLAGS += -I/usr/local/include&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CFLAGS += -L/usr/X11R6/lib -L/usr/X11/lib -lX11
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CFLAGS += -L/usr/local/lib -lxstep
+
+APPLICATIONS&nbsp; = helloworld
+
+all: $(APPLICATIONS)
+
+clean:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rm $(APPLICATIONS)
+
+</pre>
+</ul>
+Com este arquivo no mesmo diret&oacute;rio do programa exemplo (supondo
+que ele se chame helloworld.c), basta digitar <b>make</b> para que o programa
+seja compilado. Este Makefile pode servir para compilar quantos programas
+desejarmos, bastando incluir novos programas na vari&aacute;vel APPLICATIONS:
+<ul>
+<pre>
+APPLICATIONS&nbsp; = helloworld helloworld-2 helloword-3 xphotoshop xpagemaker
+
+</pre>
+</ul>
+Quando executamos <b>make</b>, o programa verifica os programas neste vari&aacute;vel
+e procura pelos respectivos arquivos <b>.c</b>, compilando eles se estiverem
+atualizados (uma caracter&iacute;stica boa do make &eacute; que ele s&oacute;
+recompila os programas que forem efetivamente modificados, poupando tempo).
+<p>Uma vez compilado, nosso programa, teremos uma janela com a frase
+<b>hello
+world</b> no centro, mas, diferentemente dos nossos outros exemplos, o
+tamanho da fonte &eacute; <b>Helvetica 12</b>, pois &eacute; a fonte padr&atilde;o
+das widgets do XSTEP. Existem formas variadas de modificar a fonte, de
+acordo com a vers&atilde;o da XSTEP. As vers&otilde;es mais antigas tem
+uma sintaxe mais complicada, mas aceita por todas as vers&otilde;es:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,640,480,"hello world!",invisible,center);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetFont(display,treestk->treestk->gc,(treestk->treestk->font=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XLoadQueryFont(display,"-*-garamond-*-*-*-*-*-720-*-*-*-*-*-*"))->fid);
+}
+
+</pre>
+</ul>
+Um pouco confuso! As vers&otilde;es mais novas do XSTEP simplificam bastante
+isto, atrav&eacute;s de algumas melhorias no c&oacute;digo de cria&ccedil;&atilde;o
+das widgets:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=XLoadQueryFont(display,"-*-garamond-*-*-*-*-*-720-*-*-*-*-*-*");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,640,480,"hello world!",invisible,center);
+}
+</pre>
+</ul>
+Deste modo as widgets j&aacute; s&atilde;o criadas com a nova fonte como
+padr&atilde;o (a fonte padr&atilde;o pode ser facilmente restabelecida
+com o c&oacute;digo 'defaultfont=helvetica12m'). Claro que a sintaxe antiga
+pode ser utilizada na vers&atilde;o mais nova, mas a sintaxe nova n&atilde;o
+&eacute; suportada na vers&atilde;o mais antiga, ent&atilde;o &eacute;
+altamente recomend&aacute;vel que se consiga uma vers&atilde;o nova, pois
+a sintaxe se torna muito mais simples. Assumindo que agora estamos realmente
+contentes por ter o mesmo resultado dos exemplos anteriores feitos diretamente
+na biblioteca X, podemos observar com mais detalhes nosso programa. Diferentemente
+da nossa primeira vers&atilde;o, esta vers&atilde;o permite que movimentemos
+a janela, maximizemos, redimensionemos e, para nossa surpresa, a frase
+<b>hello world</b> &eacute; automaticamente redesenhada na janela, comprovando
+que o toolkit deve estar manipulando eventos de exposi&ccedil;&atilde;o
+de &aacute;rea das janelas. Se consultarmos o fonte da biblioteca, perceberemos
+que ela chega a formar um cache de at&eacute; 32 &aacute;reas ret&acirc;ngulares
+expostas em uma mesma janela, o que permite enviar ao servidor X uma m&aacute;scara
+complexa formada pela uni&atilde;o das &aacute;reas expostas e redesenhar
+uma &uacute;nica vez somente as &aacute;reas expostas.
+<p><b>O RETORNO DOS BOT&Otilde;ES</b>
+<p>Em nosso &uacute;ltimo exemplo baseado diretamente na biblioteca X,
+criamos alguns bot&otilde;es para demonstrar como construir uma widget
+no X, ent&atilde;o como se comportar&aacute; a mesma widget no XSTEP ?
+vejamos:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(64,64,200,100,"hello world!",0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(280,64,200,100,"quit",window_close);
+}
+
+</pre>
+</ul>
+O c&oacute;digo &eacute; muito mais simples e o resultado, certamente,
+muito mais bonito e eficiente, mas ainda n&atilde;o mostra todos os recursos
+poss&iacute;veis que o toolkit pode fornecer. Nos exemplos com a biblioteca
+X fizemos algumas anima&ccedil;&otilde;es simples, vejamos como o toolkit
+se sai com isto:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+int&nbsp;&nbsp;&nbsp;&nbsp; x,y,ix,iy,z;
+char&nbsp;&nbsp;&nbsp; *message="hello world";
+
+void drawf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,x,y,message,strlen(message));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if((x+z)>=t->aw)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix=-1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(x&lt;=0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix= 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(y>=t->ah)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy=-1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if((y-20)&lt;=0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy= 1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x+=ix; y+=iy;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,white);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,x,y,message,strlen(message));
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFlush(display);
+}
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"quit",window_close);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(8,8,-8,-40,drawf,black);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x=64,y=64,ix=1,iy=1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; z=XTextWidth(defaultfont,message,strlen(message));
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+}
+
+</pre>
+</ul>
+Este exemplo ilustra uma s&eacute;rie de novidades do toolkit. Realmente
+&eacute; interessante como t&atilde;o pouco c&oacute;digo consegue funcionar
+t&atilde;o bem: neste exemplo podemos at&eacute; redimensionar a janela
+que as widgets s&atilde;o misteriosamente redimensionadas juntas! esta
+caracter&iacute;stica interessante &eacute; desempenhada automaticamente
+pelo toolkit, que intercepta eventos sobre a organiza&ccedil;&atilde;o
+das janelas e propaga as modifica&ccedil;&otilde;es dos descritores de
+widgets, de modo que a aplica&ccedil;&atilde;o sempre reflete o tamanho
+real da janela. No caso da widget grande e preta que roda nossa anima&ccedil;&atilde;o,
+o tamanho e posi&ccedil;&atilde;o dela &eacute; passada com uma combina&ccedil;&atilde;o
+interessante de n&uacute;meros: 8,8,-8,-40. &Eacute; obvio que n&atilde;o
+existe tamanho negativo para uma widget, ent&atilde;o os valores s&atilde;o
+interpretados como sendo posi&ccedil;&otilde;es relativas ao canto inferior
+direito da janela. No caso do bot&atilde;o, passamos os valores -8,-8,72,24.
+Fica claro que a posi&ccedil;&atilde;o negativa tamb&eacute;m &eacute;
+relativa ao canto inferior direito, de fato, quando redimensionamos a janela,
+o bot&atilde;o insiste em manter exatamente a mesma dist&acirc;ncia do
+canto inferior direito e, sem surpressas, essa dist&acirc;ncia corresponde
+justamente &agrave; posi&ccedil;&atilde;o especificada durante a cria&ccedil;&atilde;o
+do bot&atilde;o. Um bom exemplo deste tipo de combina&ccedil;&atilde;o
+&eacute; dado pelo seguinte c&oacute;digo exemplo:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+void xmain(int n,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"resizable window");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(&nbsp;&nbsp; 8,&nbsp; 8, -8, -8, "center",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(&nbsp; 16, 16, 80, 24, "top left",&nbsp;&nbsp;&nbsp;&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -16, 16, 80, 24, "top right",&nbsp;&nbsp;&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(&nbsp; 16,-16, 80, 24, "bottom left",&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -16,-16, 80, 24, "bottom right", 0);
+}
+
+</pre>
+</ul>
+Este exemplo demonstra v&aacute;rias combina&ccedil;&otilde;es de posi&ccedil;&atilde;o
+e tamanho com o objetivo de demonstrar o uso de coordenadas relativas aos
+cantos das janelas, de modo que estas janelas sejam facilmente redimension&aacute;veis.
+<p>Retornando ao nosso exemplo, observamos que a widget que cont&eacute;m
+nosso desenho &eacute; criada e, como um dos par&acirc;metros dela, &eacute;
+passado o nome da fun&ccedil;&atilde;o
+<b>drawf()</b>. Isto ocorre porque
+o XSTEP trabalha com call-backs, ou seja, os eventos gerados pelo servidor
+X ou pelo proprio XSTEP acionar&atilde;o nossas fun&ccedil;&otilde;es (portanto
+<b>xmain()</b> n&atilde;o se trata de um loop de eventos, pelo contr&aacute;rio,
+apenas constr&oacute;i as widgets e devolve o controle ao toolkit). No
+nosso exemplo, o XSTEP acionar&aacute; continuamente a fun&ccedil;&atilde;o
+<b>drawf()</b> para redesenhar aquela widget. Mas porque ? vamos experimentar
+uma pequena modifica&ccedil;&atilde;o no c&oacute;digo:
+<ul>
+<pre>
+void startf(struct xtree *t) { animate=1; }
+void stopf (struct xtree *t) { animate=0; }
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"quit",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"start",startf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-168,-8,72,24,"stop",stopf);&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(8,8,-8,-40,drawf,black);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x=64,y=64,ix=1,iy=1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; z=XTextWidth(defaultfont,message,strlen(message));
+}
+
+</pre>
+</ul>
+Observe que o topo do programa permanece o mesmo, apenas adicionamos duas
+fun&ccedil;&otilde;es novas, adicionamos dois bot&otilde;es que acionam
+estas fun&ccedil;&otilde;es e removemos a &uacute;ltima linha de c&oacute;digo
+que atribuia o valor 1 &agrave; vari&aacute;vel <b>animate</b> do XSTEP.
+<p>O programa inicia com a anima&ccedil;&atilde;o parada. Se clicarmos
+no bot&atilde;o
+<b>start</b>, a anima&ccedil;&atilde;o funciona como antes,
+clicando no bot&atilde;o <b>stop</b> ela volta a parar. Na verdade a vari&aacute;vel
+<b>animate</b> permite controlar a forma com que o XSTEP recebe os eventos
+do sevidor X, de modo que com um valor diferente de zero, algumas widgets
+pensam que est&atilde;o continuamente recebendo eventos do servidor X.
+<p>Antes de passar para o pr&oacute;ximo exemplo, alguns coment&aacute;rios
+sobre
+<b>drawf()</b>: trata-se de uma fun&ccedil;&atilde;o baseada em chamadas
+b&aacute;sicas da biblioteca X, de modo a desenhar a frase <b>hello world</b>
+pela tela. Embora o c&oacute;digo seja razoavelmente &oacute;bvio, baseado
+em incrementos de x e y alter&aacute;veis, conforme o objeto alcan&ccedil;a
+as laterais da &aacute;rea de desenho, devemos observar que grande parte
+dos par&acirc;metros s&atilde;o baseados em membros da vari&aacute;vel
+<b>t</b>, que aponta para o descritor XSTEP do objeto em quest&atilde;o
+(uma caixa especialmente orientada para gr&aacute;ficos).
+<p><b>CAIXAS DE DI&Aacute;LOGO</b>
+<p>Obviamente um toolkit oferece muito mais op&ccedil;&otilde;es, de modo
+que podemos incrementar nossos programas com diversos outros tipos de widgets,
+como caixas de texto, menus popup, op&ccedil;&otilde;es de checagem e caixas
+de di&aacute;logo, que n&atilde;o podem ser ignoradas pelo usu&aacute;rio
+(n&atilde;o podem ser fechadas nem minimizadas):
+<ul><img SRC="dialog.jpg" ></ul>
+O c&oacute;digo que gera a caixa de di&aacute;logo da ilustra&ccedil;&atilde;o
+&eacute; apresentado na seq&uuml;&ecirc;ncia:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+int&nbsp;&nbsp;&nbsp;&nbsp; x,y,ix,iy,z;
+
+char&nbsp;&nbsp;&nbsp; *message="hello world",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colorbuffer[64],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colorname[64]="Blue",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; turbo[64];
+
+char&nbsp;&nbsp;&nbsp; *colors[]={
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Cyan",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Yellow",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Magenta",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Blue",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Red",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Green"&nbsp;
+};
+
+void drawf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int c;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(*turbo) c=10; else c=1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,x,y,message,strlen(message));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if((x+z)>=t->aw)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix=-1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(x&lt;=0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix= 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(y>=t->ah)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy=-1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if((y-20)&lt;=0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy= 1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x+=(ix*c); y+=(iy*c);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,getnamedcolor(colorname));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,x,y,message,strlen(message));&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFlush(display);
+}
+
+void updatef(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(*colorbuffer)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colorname,colorbuffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colorname,"White");
+}
+
+void optionsf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,90,"Hello World Options!",gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,90,0,0,"",gray,up);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; popup_create(8,98,200,21,colorname,colors,6*21);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; edit_create (8,98+24,200,21,colorbuffer,64,updatef);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; check_create(8,-8,100,21,"Accelerated!",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; turbo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"OK",window_close);&nbsp;&nbsp;&nbsp;
+}
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Quit",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"Options",optionsf);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (box_create(8,8,-8,-40,drawf,black))->expose=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; z=XTextWidth(defaultfont,message,strlen(message));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x=64,y=64,ix=1,iy=1;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+}
+
+</pre>
+</ul>
+Tratemos cada segmento do c&oacute;digo de acordo com o grupo de widgets,
+iniciando pela janela principal, que simplesmente apresenta parte de outro
+exemplo j&aacute; abordado, exibindo uma caixa preta com a frase animada
+<b>hello world</b>, que &eacute; continuamente desenhada pela fun&ccedil;&atilde;o
+<b>drawf()</b>. Temos um bot&atilde;o <b>Quit</b>, que aciona uma fun&ccedil;&atilde;o
+<b>window_close()</b> (cuja fun&ccedil;&atilde;o, facilmente, deduzimos
+ser de fechar a janela onde este bot&atilde;o se encontra), e um bot&atilde;o
+<b>Options</b> que aciona a fun&ccedil;&atilde;o <b>optionsf()</b>. Esta
+fun&ccedil;&atilde;o, por sua vez, aciona uma caixa de di&aacute;logo.
+<p>Uma caixa de di&aacute;logo, no XSTEP, n&atilde;o pode ser ignorada
+facilmente pelo usu&aacute;rio: ela se mant&eacute;m sempre &agrave; frente
+da aplica&ccedil;&atilde;o dona da caixa e, ao mesmo tempo, n&atilde;o
+pode ser minimizada nem fechada, for&ccedil;ando o usu&aacute;rio a acionar
+o bot&atilde;o <b>OK</b>. Nesta caixa, em particular, criamos uma s&eacute;rie
+de widgets interessantes. Em primeiro lugar decoramos a caixa com alguns
+labels, dividindo a caixa em duas metades, com a superior exibindo um pequeno
+texto informativo sobre a utilidade da mesma (poderia ser uma mensagem
+de alerta tamb&eacute;m) e a parte inferior reservada para algumas widgets
+com op&ccedil;&otilde;es.
+<p>Seguindo a seq&uuml;&ecirc;ncia, criamos uma caixa popup, com diversas
+op&ccedil;&otilde;es de cor (as op&ccedil;&otilde;es s&atilde;o definidas
+no topo do c&oacute;digo):
+<ul>
+<pre>
+char colorname[64]="Blue";
+
+...
+
+char&nbsp;&nbsp;&nbsp; *colors[]={
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Cyan",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Yellow",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Magenta",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Blue",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Red",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Green"&nbsp;
+};
+
+...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; popup_create(8,98,200,21,colorname,colors,6*21);
+
+</pre>
+</ul>
+Observe que, <b>colorname</b> &eacute; um buffer de texto, preenchido como
+default com o conte&uacute;do <b>Blue</b>. Entre os par&acirc;metros da
+caixa &eacute; f&aacute;cil identificar que temos posi&ccedil;&atilde;o,
+tamanho, o buffer de texto, a lista de op&ccedil;&otilde;es e, finalmente,
+um par&acirc;metros um tanto quanto problem&aacute;tico: a quantidade de
+itens da caixa popup. Infelizmente, para manter compatibilidade bin&aacute;ria
+com vers&otilde;es anteriores, um pequeno erro descoberto mais tarde no
+XSTEP exige que se multiplique o n&uacute;mero de itens da lista de op&ccedil;&otilde;es
+pela altura da caixa popup, resultando no enigm&aacute;tico <b>6*21</b>.
+<p>O funcionamento da caixa popup &eacute; simples: clicamos sobre ela
+e escolhemos uma das op&ccedil;&otilde;es, que ser&aacute; copiada para
+o buffer de texto. Como podemos tamb&eacute;m observar, se outra widget
+modificar o buffer de texto, a caixa popup reflete a modifica&ccedil;&atilde;o
+instant&acirc;neamente, ou seja, ela tanto pode modificar o buffer de texto
+quando ser modificada por ele. Grande parte das widgets do XSTEP consegue
+detectar estas mudan&ccedil;as porque gera checksums das vari&aacute;veis
+e buffers: quando um buffer &eacute; modificado, o checksum se altera e
+a widget atualiza a tela e recalcula o checksum, at&eacute; que nova modifica&ccedil;&atilde;o
+no buffer seja efetuada. Para que a verifica&ccedil;&atilde;o ocorra, a
+cada modifica&ccedil;&atilde;o deve ser incrementado um contador de modifica&ccedil;&otilde;es
+denominado <b>broadcast</b>. Um detalhe interessante &eacute; que a vari&aacute;vel
+<b>animate</b> habilita e desabilita a verifica&ccedil;&atilde;o continua
+de checksum (as nossas anima&ccedil;&otilde;es, para o XSTEP, s&atilde;o
+simplesmente uma continua solicita&ccedil;&atilde;o de checksum de buffers).
+<p>Outra widget nova &eacute; a caixa de texto:
+<ul>
+<pre>
+char colorbuffer[64],colorname[64]="Blue";
+
+void updatef(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(*colorbuffer)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colorname,colorbuffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colorname,"White");
+}
+
+...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; edit_create (8,98+24,200,21,colorbuffer,64,updatef);
+
+</pre>
+</ul>
+A caixa de texto permite a digita&ccedil;&atilde;o de texto, de modo que
+passamos a posi&ccedil;&atilde;o da caixa, o tamanho, um buffer de digita&ccedil;&atilde;o
+(observe que na medida que &eacute; digitado o texto, o buffer &eacute;
+modificado), o tamanho do buffer e uma fun&ccedil;&atilde;o verificadora,
+que chamamos de <b>updatef()</b>. A fun&ccedil;&atilde;o verificadora sempre
+&eacute; acionada quando saimos da caixa, ou seja, saltamos para outra
+ou pressionamos ENTER dentro da caixa, de modo que, no nosso exemplo, a
+fun&ccedil;&atilde;o verificadora &eacute; chamada. No caso de <b>updatef()</b>,
+ela simplesmente verifica se o buffer de digita&ccedil;&atilde;o n&atilde;o
+est&aacute; vazio e copia para o outro buffer definitivo, do contr&aacute;rio
+ela copia um valor padr&atilde;o. O buffer de texto definitivo, no exemplo,
+&eacute; o mesmo que o buffer de texto da caixa popup, de modo que digitar
+algo na nossa caixa de texto se reflete na caixa popup.
+<p>Finalmente, a ultima widget interessante &eacute; uma caixa de verifica&ccedil;&atilde;o
+ou checagem:
+<ul>
+<pre>
+char turbo[64];
+
+...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; check_create(8,-8,100,21,"Accelerated!",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; turbo);
+
+</pre>
+</ul>
+Seu funcionamento &eacute; simples: quando acionada, o buffer de texto
+cont&eacute;m o nome da caixa. Quando desacionada, o buffer &eacute; apagado.
+Tanto a vari&aacute;vel
+<b>turbo</b> da caixa de verifica&ccedil;&atilde;o
+quanto a vari&aacute;vel <b>colorname</b> da caixa de texto e popup s&atilde;o
+utilizadas como par&acirc;metros da fun&ccedil;&atilde;o
+<b>drawf()</b>,
+permitindo mudar a velocidade e a cor de exibi&ccedil;&atilde;o da anima&ccedil;&atilde;o.
+<p>Na caixa de texto podemos digitar alguns nomes de cores em ingl&ecirc;s
+e a fun&ccedil;&atilde;o <b>getnamedcolor()</b> tentar&aacute; obter a
+cor na lista de cores do servidor X. Opcionalmente podemos digitar a cor
+codificada em hexadecimal, obedecendo a nota&ccedil;&atilde;o <b>#RGB</b>,
+<b>#RRGGBB</b> ou <b>#RRRRGGGGBBBB</b>, onde cada letra corresponde a digitos
+hexadecimais codificando num&eacute;ricamente a cor desejada.
+<p><b>CAIXAS DE DI&Aacute;LOGO AVAN&Ccedil;ADAS</b>
+<p>A lista popup &eacute; uma boa op&ccedil;&atilde;o para uma quantidade
+reduzida de escolhar, mas para uma grande quantidade se torna invi&aacute;vel
+(experimente criar um menu popup t&atilde;o grande quanto a tela e voc&ecirc;
+descobrir&aacute; porque :). A caixa de texto nos d&aacute; a op&ccedil;&atilde;o
+de digitar o nome da cor desejada, mas &eacute; um tanto quanto pouco pr&aacute;tico
+ficar experimentando nomes de cores at&eacute; encontrar uma que seja aceita
+pelo servidor X. Uma op&ccedil;&atilde;o seria exibir uma lista com todas
+as cores (embora este exemplo funcione em qualquer display, &eacute; necess&aacute;rio
+alertar que ele ir&aacute; alocar em m&eacute;dia 800 cores, portanto um
+display com 8 bits de cor n&atilde;o conseguir&aacute; exibir muitas delas),
+mas disposta em um tamanho f&iacute;sico compacto:
+<ul><img SRC="list.jpg" ></ul>
+Abaixo o respectivo c&oacute;digo:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+int&nbsp;&nbsp;&nbsp;&nbsp; x,y,ix,iy,z;
+
+char&nbsp;&nbsp;&nbsp; *message="hello world",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colorname[64]="White",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; turbo[64]="1x",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *colors[4096];
+
+int&nbsp;&nbsp;&nbsp;&nbsp; colorptr,colormax;
+
+void drawf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int c;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c=atoi(turbo);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,x,y,message,strlen(message));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if((x+z)>=t->aw)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix=-1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(x&lt;=0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix= 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(y>=t->ah)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy=-1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if((y-20)&lt;=0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy= 1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x+=(ix*c); y+=(iy*c);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,getnamedcolor(colorname));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,x,y,message,strlen(message));&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFlush(display);
+}
+
+void showcolorf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(colormax) downbox(0,0,t->aw,t->ah,getnamedcolor(colors[colorptr]),t);
+}
+
+void applyf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(colormax) strcpy(colorname,colors[colorptr]);
+}
+
+void okf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(colormax) strcpy(colorname,colors[colorptr]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close(t);
+}
+
+void colorsf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scroll_create(8,8,-148,-40,&amp;colorptr,&amp;colormax,colors,0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(-8,8,132,132,showcolorf,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-168,-8,72,24,"Cancel",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"OK",okf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Apply",applyf);
+}
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FILE *f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char buffer[256],*q;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *w;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f=fopen("/usr/X11R6/lib/X11/rgb.txt","r");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(fgets(buffer,256,f)) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(buffer[0]=='!') continue;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer[strlen(buffer)-1]=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; q=buffer;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors[colormax]=(char *)malloc(1+strlen(q));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colors[colormax],q);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colormax++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fclose(f);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,640,480,p[0]);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create((8+50*0),-8,50,21,"1x",turbo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create((8+50*1),-8,50,21,"2x",turbo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create((8+50*2),-8,50,21,"4x",turbo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create((8+50*3),-8,50,21,"8x",turbo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create((8+50*4),-8,50,21,"16x",turbo);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create((8+50*5),-8,50,21,"32x",turbo);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Quit",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"Colors",colorsf);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w=box_create(8,8,-8,-40,drawf,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w->expose=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; z=XTextWidth(defaultfont,message,strlen(message));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x=64,y=64,ix=1,iy=1;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+}
+
+</pre>
+</ul>
+&Eacute; um c&oacute;digo extenso, mas claro e de f&aacute;cil compreens&atilde;o.
+O c&oacute;digo XSTEP da lista, de fato, se limita a pouco segmentos:
+<ul>
+<pre>
+char&nbsp;&nbsp;&nbsp; *colors[4096];
+
+int&nbsp;&nbsp;&nbsp;&nbsp; colorptr,colormax;
+
+...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scroll_create(8,8,-148,-40,&amp;colorptr,&amp;colormax,colors,0);
+
+</pre>
+</ul>
+Na lista definimos apenas a posi&ccedil;&atilde;o e tamanho, passamos um
+ponteiro para um inteiro que indica o item que est&aacute; ativo na lista,
+um ponteiro para um inteiro que indica o tamanho total da lista e finalmente
+passamos um array de ponteiros, cada um apontando para uma string, que
+ser&aacute; um item da lista. O tamanho do array &eacute; definido estaticamente
+como tendo at&eacute; 4096 itens, mas o n&uacute;mero exato &eacute; indicado
+din&acirc;micamente pelo inteiro <b>colormax</b>. A lista &eacute; preenchida
+pelo seguinte segmento de c&oacute;digo:
+<ul>
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f=fopen("/usr/X11R6/lib/X11/rgb.txt","r");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(fgets(buffer,256,f)) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(buffer[0]=='!') continue;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer[strlen(buffer)-1]=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; q=buffer;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors[colormax]=(char *)malloc(1+strlen(q));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colors[colormax],q);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colormax++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fclose(f);
+
+</pre>
+</ul>
+Basicamente um loop de leitura baseado em <b>fgets()</b>, onde as linhas
+do arquivo lido s&atilde;o processados um a um no loop. Quando o arquivo
+chega ao fim, a fun&ccedil;&atilde;o de leitura retorna zero e o loop se
+encerra. Dentro do loop &eacute; feito algum processamento para buscar
+os dados. Basicamente evitamos coment&aacute;rios, removemos o caracter
+de nova-linha presente no fim de cada linha e varremos a linha procurando
+por alguns campos delimitados por espa&ccedil;o ou tabula&ccedil;&atilde;o.
+Encontrando o campo desejado, alocamos um item na lista
+<b>colors</b> e
+incrementamos o indicador de tamanho <b>colormax</b>.
+<p>O acesso a itens da lista &eacute; muito simples (este c&oacute;digo
+&eacute; apenas ilustrativo):
+<ul>
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</pre>
+</ul>
+Como a lista &eacute; delimitada por <b>colormax</b>, podemos utilizar:
+<ul>
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</pre>
+</ul>
+O resto do c&oacute;digo, essencialmente &eacute; o mesmo. Modificamos
+a sele&ccedil;&atilde;o de velocidade, de modo que ao inv&eacute;s um modo
+acelerado, temos um conjunto de widgets que nos permite dobrar a velocidade
+at&eacute; 32 vezes, sendo que somente uma op&ccedil;&atilde;o pode ser
+selecionada ao mesmo tempo. Outro c&oacute;digo interessante &eacute; uma
+demonstra&ccedil;&atilde;o de como construir uma caixa de di&aacute;logo
+utilizando vari&aacute;veis tempor&aacute;rias, de modo a n&atilde;o aplicar
+as modifi&ccedil;&otilde;es no momento das sele&ccedil;&otilde;es. Trata-se
+somente de um pequeno truque com bot&otilde;es, mas certamente est&aacute;
+entre os truques mais importantes do nosso exemplo, pois permite a cria&ccedil;&atilde;o
+de caixas de di&aacute;logo mais avan&ccedil;adas.
+<p>Finalmente, um pequeno segmento de c&oacute;digo que nos chama a aten&ccedil;&atilde;o
+&eacute; o uso da fun&ccedil;&atilde;o <b>downbox()</b>. N&atilde;o se
+trata de uma widget, de fato esta fun&ccedil;&atilde;o faz parte de um
+conjunto de utilit&aacute;rios encontrados dentro da biblioteca do XSTEP
+(lament&aacute;velmente estas fun&ccedil;&otilde;es ficaram esquecidas
+e n&atilde;o se encontram no manual de refer&ecirc;ncia publicado na vers&atilde;o
+3.3 do XSTEP, mas est&atilde;o oficialmente dispon&iacute;veis como qualquer
+outra fun&ccedil;&atilde;o e s&atilde;o utilizadas em muitos exemplos)
+e sua fun&ccedil;&atilde;o &eacute; simplesmente desenhar uma caixa colorida
+com um aspecto tridimensional (tamb&eacute;m existe uma respectiva <b>upbox()</b>).
+Embora simples, estas fun&ccedil;&otilde;es s&atilde;o extremamente importantes
+no XSTEP.
+<p>E se desej&aacute;ssemos uma lista com mais de uma coluna ao mesmo tempo
+? a modifica&ccedil;&atilde;o &eacute; relativamente simples, embora tenhamos
+que utilizar outra widget. No caso do XSTEP, uma lista com multiplas colunas
+na verdade &eacute; uma macro que cria v&aacute;rias listas normais ligadas,
+de modo que se parece uma lista com multiplas colunas:
+<ul><img SRC="multi.jpg" ></ul>
+Embora pareca razo&aacute;vel, existe uma grande falha nesta abordagem
+e &eacute; bem poss&iacute;vel que isto seja melhorado em futuras vers&otilde;es
+do XSTEP, de modo que as listas com uma ou mais colunas sejam tratadas
+de forma semelhante. Vejamos as modifica&ccedil;&otilde;es para isto:
+<ul>
+<pre>
+#include &lt;xstep.h>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int&nbsp;&nbsp;&nbsp;&nbsp; x,y,ix,iy,z;
+
+char&nbsp;&nbsp;&nbsp; *message="hello world",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colorname[64]="White",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; turbo[64]="1x";
+
+char&nbsp;&nbsp;&nbsp; *colors[4096],*codes[4096];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+struct mlist multi[]={
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { "Name",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors, 100 },&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { "Code",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes,&nbsp; 100 },
+};
+
+int&nbsp;&nbsp;&nbsp;&nbsp; colorptr,colormax;
+
+...
+
+void colorsf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(-8,8,132,132,showcolorf,black);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mscroll_create(8,8,-148,-40,&amp;colorptr,&amp;colormax,multi,0,applyf,0,2);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-168,-8,72,24,"Cancel",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"OK",okf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Apply",applyf);
+}
+
+...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(fgets(buffer,256,f)) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(buffer[0]=='!') continue;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer[strlen(buffer)-1]=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; q=buffer;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q>32) q++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(*q&lt;33) q++;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors[colormax]=(char *)malloc(1+strlen(q));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colors[colormax],q);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(buffer,"%d",getnamedcolor(q));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes[colormax]=(char *)malloc(1+strlen(buffer));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(codes[colormax],buffer);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colormax++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+...
+
+</pre>
+</ul>
+A modifica&ccedil;&atilde;o, de fato, &eacute; bem pequena, e certamente
+s&atilde;o modifica&ccedil;&otilde;es f&aacute;ceis de encontrar na forma
+que estamos apresentando (de certa forma, faz parte do exerc&iacute;cio
+efetuar as modifica&ccedil;&otilde;es corretamente :). Quando compilado,
+notamos que a lista passa a apresentar tamb&eacute;m o c&oacute;digo que
+indexa a cor no sistema de cores do X. Uma vantagem deste tipo de lista
+&eacute; que ela aceita nada menos do que tr&ecirc;s fun&ccedil;&otilde;es
+de call-back (enquanto que a outra lista aceita somente uma): a fun&ccedil;&atilde;o
+de modifica&ccedil;&atilde;o, acionada quando mudamos de um item para outro,
+uma fun&ccedil;&atilde;o de duplo-click (que neste exemplo atribu&iacute;mos
+&agrave; fun&ccedil;&atilde;o <b>applyf()</b>, de modo que um duplo-click
+aplica instant&acirc;neamente a cor desejada) e uma fun&ccedil;&atilde;o
+acionada pelo bot&atilde;o direito do mouse.
+<p>A finalidade de uma fun&ccedil;&atilde;o acionada pelo bot&atilde;o
+direito do mouse sobre um item da lista &eacute; justamente o acionamento
+de um menu popup, possivelmente para escolhermos comandos sobre determinado
+item da lista ou coisas do genero. Podemos, portanto, criar um menu popup
+para inserir ou remover itens da nossa lista:
+<ul>
+<pre>
+char colorbuffer[64];
+
+void insertf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!*colorbuffer) return;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors[colormax]=(char *)malloc(1+strlen(colorbuffer));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(colors[colormax],colorbuffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(colorbuffer,"%d",getnamedcolor(colorbuffer));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes[colormax]=(char *)malloc(1+strlen(colorbuffer));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(codes[colormax],colorbuffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colormax++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close(t);
+}
+
+void decodemenuf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch(t->l) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 0:&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,90,"Insert New Color",gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,90,0,0,"",gray,up);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; edit_create (8,98,200,21,colorbuffer,64,insertf);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Insert",insertf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"Cancel",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 1:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free(colors[colorptr]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free(codes[colorptr]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colormax--;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors[colorptr]=colors[colormax];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes[colorptr] =codes[colormax];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; broadcast++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 2:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applyf(t);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 3:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close(t);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+}
+
+void menuf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; static char *options[]={
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Insert"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Delete"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Apply"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Cancel"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; menu_create(0,0,120,4*21,options,0,decodemenuf);
+}
+
+void colorsf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(-8,8,132,132,showcolorf,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mscroll_create(8,8,-148,-40,&amp;colorptr,&amp;colormax,multi,0,applyf,menuf,2);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-168,-8,72,24,"Cancel",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"OK",okf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Apply",applyf);
+}
+
+</pre>
+</ul>
+Estas modifica&ccedil;&otilde;es ficam todas acima da fun&ccedil;&atilde;o
+<b>colorsf()</b>, de modo que o resto do programa n&atilde;o precisa ser
+modificado e a disposi&ccedil;&atilde;o de algumas fun&ccedil;&otilde;es
+at&eacute; nos facilitou o c&oacute;digo. A cria&ccedil;&atilde;o de um
+menu popup &eacute; um pouco complexa. De fato o menu popup e a lista popup
+s&atilde;o a mesma widget, mas a lista popup tem uma rotina que decodifica
+a op&ccedil;&atilde;o do usu&aacute;rio automaticamente, enquanto que o
+menu popup, ao menos no momento, exige que o usu&aacute;rio fa&ccedil;a
+esta decodifica&ccedil;&atilde;o (isto tamb&eacute;m deve mudar em futuras
+vers&otilde;es do XSTEP). Decodificada a opera&ccedil;&atilde;o, executamos
+os respectivo c&oacute;digo, como inserir ou deletar uma entrada nas listas
+(o c&oacute;digo &eacute; bem simples e claro, prov&aacute;velmente dispensa
+coment&aacute;rios).
+<p>Abaixo o aspecto da caixa acionada para solicitar o nome da nova cor
+a ser inserida:
+<ul><img SRC="insert.jpg" ></ul>
+<b>CAIXAS DE DI&Aacute;LOGO COM GRUPOS</b>
+<p>No exemplo anterior, quando inserimos uma nova cor na lista, uma caixa
+de di&aacute;logo adicional era aberta. Podemos abrir quantas caixas desejarmos,
+mas uma abordagem melhor &eacute; criar uma unica caixa de di&aacute;logo
+e permitir ao usu&aacute;rio controlar o conte&uacute;do desta caixa. Com
+poucas modifica&ccedil;&otilde;es podemos melhorar nosso exemplo para ter
+este tipo de funcionalidade, gra&ccedil;as aos grupos de widgets do XSTEP.
+Os grupos, pelo ponto de vista do servidor X, nada mais s&atilde;o do que
+sub-janelas que cont&eacute;m outras sub-janelas, mas estas sub-janelas
+contidas n&atilde;o podem sair dos limites da sub-janela que as cont&eacute;m.
+&Eacute; poss&iacute;vel, ent&atilde;o, controlar a posi&ccedil;&atilde;o
+de diversos grupos, de modo a se sobreporem uns sobre os outros, dando
+ent&atilde;o o efeito de que estamos mudando o conte&uacute;do de uma janela:
+<ul><img SRC="group-1.jpg" ></ul>
+
+<ul><img SRC="group-2.jpg" ></ul>
+Na pr&aacute;tica s&oacute; estamos trocando a posi&ccedil;&atilde;o de
+dois grupos, de modo que um sobrep&otilde;e o outro ao nosso comando. Vejamos
+as modifica&ccedil;&otilde;es necess&aacute;rias no programa:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+struct xtree *group1,*group2,*groupptr;
+
+...
+
+void decodemenuf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch(t->l) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 0:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; groupptr=group2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XRaiseWindow(display,group2->win);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 1:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free(colors[colorptr]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free(codes[colorptr]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colormax--;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors[colorptr]=colors[colormax];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes[colorptr] =codes[colormax];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; broadcast++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 2:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applyf(t);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 3:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close(t);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+}
+
+...
+
+void groupptrf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(groupptr==group1) groupptr=group2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else groupptr=group1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XRaiseWindow(display,groupptr->win);
+}
+&nbsp;
+void colorsf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group1=group_begin(0,0,0,-40,gray);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; box_create(-8,8,132,-1,showcolorf,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mscroll_create(8,8,-148,-1,&amp;colorptr,&amp;colormax,multi,0,applyf,menuf,2);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group_end();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group2=group_begin(0,0,0,-40,gray);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,90,"Insert New Color",gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,90,0,90,"",gray,up);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; edit_create (8,98,200,21,colorbuffer,64,insertf);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group_end();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-248,-8,72,24,"More",groupptrf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-168,-8,72,24,"Cancel",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"OK",okf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Apply",applyf);
+}
+&nbsp;
+...
+
+</pre>
+</ul>
+A manipula&ccedil;&atilde;o de grupo &eacute; simples. No nosso caso, criamos
+dois grupos bom
+<b>group_begin()</b> posicionados exatamente um em cima
+do outro, ambos com fundo cinza para que o grupo e a janela n&atilde;o
+sejam distinguiveis pelo usu&aacute;rio (cada grupo deve terminar com uma
+diretiva <b>group_end()</b>). Ent&atilde;o, pelo bot&atilde;o <b>More</b>,
+podemos permutar entre os grupos utilizando a fun&ccedil;&atilde;o
+<b>XRaiseWindow()</b>,
+que coloca uma janela sobre as outras. &Eacute; necess&aacute;rio um certo
+cuidado com esta opera&ccedil;&atilde;o, pois se as &aacute;reas dos grupos
+fossem do tamanho de toda a janela, os bot&otilde;es que est&atilde;o no
+rodap&eacute; da janela seriam sobrepostos pelos grupos durante um <b>XRaiseWindow()</b>,
+visto que os bot&otilde;es e grupos s&atilde;o sub-janelas como todas as
+outras widgets e podem ser tratadas da mesma forma.
+<p>Como podemos ver, durante a execu&ccedil;&atilde;o, todas as widgets
+continuam funcionando perfeitamente como antes, mas agora elas est&atilde;o
+utilizando somente uma &uacute;nica caixa de di&aacute;logo.
+<p><b>MUITO AL&Eacute;M DE HELLO WORLD</b>
+<p>Como vimos at&eacute; agora, o XSTEP disponibiliza uma s&eacute;rie
+de recursos para o desenvolvimento de aplica&ccedil;&otilde;es X razo&aacute;velmente
+compactas, r&aacute;pidas e f&aacute;ceis de escrever, o que deve atrair
+muitos programadores iniciantes interessados em resultados r&aacute;pidos.
+Por outro lado, o XSTEP n&atilde;o &eacute; um toolkit muito complexo,
+no sentido que est&aacute; intimamente relacionado com a biblioteca X e
+isto lhe permite explorar facilmente recursos do X que n&atilde;o est&atilde;o
+originalmente no seu projeto.
+<p>Esta facilidade de intera&ccedil;&atilde;o com a biblioteca X pode ser
+particularmente atraente para programadores avan&ccedil;ados, de modo a
+explorar recursos mais avan&ccedil;ados do X dispon&iacute;veis somente
+pela biblioteca X e, ao mesmo tempo, contar com algumas widgets para melhorar
+seu trabalho (neste artigo n&atilde;o mostramos todas as widgets, pois
+j&aacute; existe um guia de refer&ecirc;ncia que faz exatamente isto, o
+<a href="../manual/index.html">XSTEP Reference Manual</a>).
+<p>Dois amplos campos de pesquisa para programadores mais avan&ccedil;ados
+referem-se &agrave; gera&ccedil;&atilde;o de imagens no X com alta performance,
+particularmente para o projeto de jogos, simuladores, intera&ccedil;&atilde;o
+com cameras de v&iacute;deo ou outros dispositivos e exibi&ccedil;&atilde;o
+de grandes quantidades de dados. O pr&oacute;ximo exemplo, uma vers&atilde;o
+modificada de uma aplica&ccedil;&atilde;o de demonstra&ccedil;&atilde;o
+inicialmente distribu&iacute;da com o XSTEP 3.2, compara a t&eacute;cnica
+que estamos utilizando nos nossos exemplos (desenhar diretamente nas janelas)
+com a extens&atilde;o double buffer do X:
+<ul>
+<pre>
+#include &lt;xstep.h>
+#include &lt;sys/time.h>
+#include &lt;unistd.h>
+#include &lt;math.h>
+
+#include &lt;X11/extensions/Xdbe.h>
+
+XdbeSwapInfo&nbsp;&nbsp;&nbsp; dbinfo;
+XdbeBackBuffer&nbsp; dbbuffer;
+GC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbgc;
+
+#define VECTORS (18*4)
+
+#ifndef PI
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #define PI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (355.0/113.0)
+#endif
+
+XPoint&nbsp; object[3][5][VECTORS];
+
+
+struct timeval tv,tv1,tv0;
+struct timezone tz;
+
+int&nbsp;&nbsp;&nbsp;&nbsp; frames,framec,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xdir=4,ydir=4,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tic,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; softdbf,harddbf,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frametime=1000000/30;
+
+char&nbsp;&nbsp;&nbsp; fps[64],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; framedef[64],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bufferdef[64],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; status[128];
+
+int red,green,blue,color;
+
+void draw(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int f,ticd;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gettimeofday(&amp;tv1,&amp;tz);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ticd=tv1.tv_usec/frametime;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(tic==ticd) return;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tic=ticd;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frames++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; framec++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(frames%32>=16)&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; color=15-frames%16;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; color=frames%16;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f=frames%5;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memcpy(&amp;tv0,&amp;tv1,sizeof(tv));
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!tic) {&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(status,"%s: %dx%d (%ld fps)",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; harddbf?"DoubleBuffer":"WindowBuffer",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->aw,t->ah,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tv1.tv_sec-tv.tv_sec?framec/(tv1.tv_sec-tv.tv_sec):0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(harddbf) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,dbgc,red);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillPolygon(display,dbbuffer,dbgc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[0][frames%5],VECTORS,Nonconvex,CoordModeOrigin);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,dbgc,green);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillPolygon(display,dbbuffer,dbgc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[1][4-(frames-1)%5],VECTORS,Nonconvex,CoordModeOrigin);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,dbgc,blue);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillPolygon(display,dbbuffer,dbgc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[2][frames%5],VECTORS,Nonconvex,CoordModeOrigin);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,dbgc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,dbbuffer,dbgc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4,24,status,strlen(status));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XdbeSwapBuffers(display,&amp;dbinfo,1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XClearWindow(display,t->win);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,red);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillPolygon(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[0][frames%5],VECTORS,Nonconvex,CoordModeOrigin);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,green);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillPolygon(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[1][4-(frames-1)%5],VECTORS,Nonconvex,CoordModeOrigin);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,blue);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillPolygon(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[2][frames%5],VECTORS,Nonconvex,CoordModeOrigin);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4,24,status,strlen(status));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFlush(display);
+}
+
+void control_apply(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frametime=1000000/atoi(framedef);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; harddbf=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!strcmp(bufferdef,"Double Buffered")) harddbf=1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gettimeofday(&amp;tv,&amp;tz);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; framec=0;
+}
+
+void control_ok(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; control_apply(t);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close(t);
+}
+
+void control(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialogbox_create(400,180);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; strcpy(bufferdef,"Single Buffered");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(harddbf) strcpy(bufferdef,"Double Buffered");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch(atoi(framedef)) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 15: strcpy(framedef,"15 frames/s"); break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 30:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; default: strcpy(framedef,"30 frames/s"); break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 25: strcpy(framedef,"25 frames/s"); break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,90,"",gray,up);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create(8,8+0*24,200-8,21,"15 frames/s",framedef);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create(8,8+1*24,200-8,21,"30 frames/s",framedef);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; radio_create(8,8+2*24,200-8,21,"60 frames/s",framedef);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,-90,0,0,"",gray,up);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; check_create(8,-8,200,21,"Double Buffered",bufferdef);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-168,-8,72,24,"Ok",control_ok);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"Cancel",window_close);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Apply",control_apply);
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int i,j,f,g;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *w;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(g=0;g!=3;g++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(j=0;j!=18;j++)&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(f=0;f!=5;f++) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i=j*20+f*4;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+0].x=(int)(310*g+210+cos(i*PI/180)*140.0);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+0].y=(int)(210+sin(i*PI/180)*140.0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i+=10;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+1].x=(int)(310*g+210+cos(i*PI/180)*140.0);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+1].y=(int)(210+sin(i*PI/180)*140.0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i+=2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+2].x=(int)(310*g+210+cos(i*PI/180)*170.0);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+2].y=(int)(210+sin(i*PI/180)*170.0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i+=6;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+3].x=(int)(310*g+210+cos(i*PI/180)*170.0);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object[g][f][j*4+3].y=(int)(210+sin(i*PI/180)*170.0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; red=getnamedcolor("DarkRed");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; green=getnamedcolor("DarkGreen");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; blue=getnamedcolor("DarkBlue");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w=window_create(16,16,512,384,"XStep2D Animation");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetFont(display,w->gc,helvetica24b->fid);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w->broadcast=draw;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbbuffer=XdbeAllocateBackBufferName(display,w->win,XdbeBackground);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbgc=XCreateGC(display,dbbuffer,0,&amp;values);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetFont(display,dbgc,helvetica24b->fid);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbinfo.swap_window=treestk->win;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbinfo.swap_action=XdbeBackground;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gettimeofday(&amp;tv,&amp;tz);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gettimeofday(&amp;tv0,&amp;tz);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"Control",control);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"Quit",window_close);
+}
+
+</pre>
+</ul>
+Sua compila&ccedil;&atilde;o &eacute; um pouco diferente: precisamos da
+biblioteca matem&aacute;tica e do suporte a extens&otilde;es do X, de modo
+que no nosso Makefile, precisamos acrescentar, ap&oacute;s a biblioteca
+-lX11 do X, os par&acirc;metros <b>-lXext -lm</b>. Uma vez compilado, temos
+o seguinte resultado:
+<ul><img SRC="advanced.jpg" ></ul>
+Esta extens&atilde;o double buffer, como percebemos, permite que os gr&aacute;ficos
+vetoriais sejam desenhandos em um buffer interno do servidor X e ent&atilde;o
+trocados com o conte&uacute;do da janela, de modo que n&atilde;o conseguimos
+ver o redesenho da tela e a aplica&ccedil;&atilde;o aparenta uma imagem
+mais nitida e est&aacute;vel durante a anima&ccedil;&atilde;o. Embora seja
+uma t&eacute;cnica dispendiciosa (um buffer de uma janela 1024x768 e 16
+bits de cor consome 768KB de mem&oacute;ria no servidor X) e exija uma
+m&aacute;quina de boa performance para mover a grande quantidade de mem&oacute;ria
+envolvida (em nosso exemplo, a 512x384, 16 bits de cor e 30 frames por
+segundo, o servidor X movimenta nada menos do que 12MB/s de dados!), &eacute;
+uma t&eacute;cnica essencial para o desenvolvimento de aplica&ccedil;&otilde;es
+que manipulem gr&aacute;ficos vetoriais 2D e 3D avan&ccedil;ados.
+<p>O pr&oacute;ximo exemplo, por outro lado, &eacute; especialmente interessante
+para manipular gr&aacute;ficos n&atilde;o-vetoriais, como imagens geradas
+por cameras, jogos com texturiza&ccedil;&atilde;o rica ou exibi&ccedil;&atilde;o
+de grande quantidade de dados n&atilde;o-vetoriais. &Eacute; estranho observar
+que muitos bons programadores, quando se deparam com a arquitetura cliente-servidor
+do X, se sentem restritos pelo simples fato de n&atilde;o terem acesso
+a um ponteiro capaz de desenhar diretamente no frame-buffer da m&aacute;quina.
+Claro que isto n&atilde;o &eacute; totalmente verdadeiro, de modo que o
+X disp&otilde;e de diversos m&eacute;todos para transferir grandes massas
+de dados entre uma aplica&ccedil;&atilde;o cliente e um servidor X, com
+boa performance mesmo atrav&eacute;s de uma conex&atilde;o de rede. A t&eacute;cnica
+mais r&aacute;pida, por&eacute;m, &eacute; a extens&atilde;o XSHM, que
+oferece ao programador justamente o t&atilde;o sonhado ponteiro para o
+frame-buffer (sob certas normas, &eacute; claro).
+<p>A extens&atilde;o XSHM permite que uma aplica&ccedil;&atilde;o rodando
+na mesma m&aacute;quina do servidor X capture um buffer na pr&oacute;pria
+mem&oacute;ria do servidor X, atrav&eacute;s de mem&oacute;ria partilhada
+via IPC, de modo que podemos endere&ccedil;ar diretamente os pixels atrav&eacute;s
+de ponteiros dentro deste buffer! Vejamos o exemplo:
+<ul>
+<pre>
+#include &lt;xstep.h>
+#include &lt;X11/extensions/XShm.h>
+#include &lt;sys/shm.h>
+
+XImage *image;
+XShmSegmentInfo shminfo;
+
+int&nbsp;&nbsp;&nbsp;&nbsp; c,d,max,depth,frame,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *buffer24;
+char&nbsp;&nbsp;&nbsp; *buffer8;
+short&nbsp;&nbsp; *buffer16;
+
+void drawf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int x,y,ti;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char buffer[256];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch(depth) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 8:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(x=0;x!=image->width;x++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(y=0;y!=image->height;y++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer8[y*image->width+x]=rand();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 16:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(x=0;x!=image->width;x++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(y=0;y!=image->height;y++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer16[y*image->width+x]=rand();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 24:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(x=0;x!=image->width;x++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(y=0;y!=image->height;y++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer24[y*image->width+x]=rand();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c++;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XPutShmImage(display,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->win,t->gc,image,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0,0,0,0,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image->width,image->height,False);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ti=time(0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(ti!=d) { max=c; d=ti; c=0; frame++; }&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(buffer,"%d.%02d (%d fps)",frame,c,max);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,6,t->ah-4,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer,strlen(buffer));
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,white);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,4,t->ah-6,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer,strlen(buffer));
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFlush(display);
+}
+
+XImage *xshmget(int x,int y) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XImage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *image;
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image=XShmCreateImage(display,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DefaultVisual(display,screen),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; depth=DefaultDepth(display,screen),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ZPixmap,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NULL,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;shminfo,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x,y);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shminfo.shmid=shmget(IPC_PRIVATE,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image->bytes_per_line*image->height,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPC_CREAT|0777 );
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shminfo.shmaddr=image->data=(char *)shmat(shminfo.shmid,0,0);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shminfo.readOnly = False;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XShmAttach(display, &amp;shminfo);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return(image);
+}
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *w;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=XLoadQueryFont(display,"*helvetica*14*");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w=window_create(0,0,320,240,"XSTEP and XSHM");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w->broadcast=drawf;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image=xshmget(w->aw,w->ah);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer8=image->data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer16=(short *)image->data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer24=(int *)image->data;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+}
+
+</pre>
+</ul>
+Neste exemplo alocamos um buffer no servidor X e conseguimos um ponteiro
+para trabalhar diretamente neste buffer (de fato, criamos tr&ecirc;s ponteiros,
+que s&atilde;o utilizados de acordo com a quantidade de bits de cor no
+display do usu&aacute;rio). A manipula&ccedil;&atilde;o de pixels individuais
+&eacute; t&atilde;o simples como:
+<ul>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer8[y*image->width+x]=valor;</pre>
+</ul>
+Portanto conseguimos criar imagens com alta performance. Quando a imagem
+est&aacute; completa, simplesmente copiamos a imagem do buffer para a respectiva
+janela, com a fun&ccedil;&atilde;o <b>XShmPutImage()</b>. Como n&atilde;o
+estamos desenhando diretamente sobre as janelas na tela, temos um efeito
+parecido com o proporcionado pela extens&atilde;o double buffer, ou seja,
+escondemos o desenho. Uma vantagem, por&eacute;m, sobre a extens&atilde;o
+double buffer &eacute; que a fun&ccedil;&atilde;o
+<b>XShmPutImage()</b>
+nos permite desenhar somente uma parte da imagem, se assim desejarmos.
+<p>Neste exemplo somente desenhamos alguns pixels aleat&oacute;riamente
+na tela (um indicador no canto inferior esquerdo contabiliza a quantidade
+de frames no tempo, informando quantos frames por segundo estamos conseguindo
+exibir). Com algumas modifica&ccedil;&otilde;es podemos tornar este exemplo
+uma aplica&ccedil;&atilde;o mais &uacute;til:
+<ul>
+<pre>
+#include &lt;xstep.h>
+
+#include &lt;X11/extensions/XShm.h>
+#include &lt;sys/shm.h>
+
+XImage *image;
+XShmSegmentInfo shminfo;
+
+int&nbsp;&nbsp;&nbsp;&nbsp; c,d,max,depth,frame,colors[64],ix,iy,zx=2,zy=2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *buffer24;
+char&nbsp;&nbsp;&nbsp; *buffer8;
+short&nbsp;&nbsp; *buffer16;
+
+#define X 320
+#define Y 240
+
+#define K (X*X/4+Y*Y/4)
+
+int f(int x,int y) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x+=ix-X/2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; y+=iy-Y/2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return(abs(ix-iy)*x*x+abs(ix-iy)*y*y);
+}
+
+void drawf(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int x,y,ti;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char buffer[256];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch(depth) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 8:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(x=0;x!=image->width;x++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(y=0;y!=image->height;y++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer8[y*image->width+x]=colors[(f(x,y)/(K/32))%64];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 16:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(x=0;x!=image->width;x++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(y=0;y!=image->height;y++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer16[y*image->width+x]=f(x,y)/(K/16);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 24:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(x=0;x!=image->width;x++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(y=0;y!=image->height;y++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer24[y*image->width+x]=f(x,y)/(K/128);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c++;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XShmPutImage(display,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->win,t->gc,image,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0,0,0,0,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image->width,image->height);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ti=time(0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(ti!=d) { max=c; d=ti; c=0; frame++; }&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(buffer,"%d.%02d (%d fps)",frame,c,max);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,black);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,6,t->ah-4,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer,strlen(buffer));
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,white);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XDrawString(display,t->win,t->gc,4,t->ah-6,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer,strlen(buffer));
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFlush(display);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ix+=zx;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iy+=zy;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!(rand()%20)) zx=-zx;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!(rand()%20)) zy=-zy;
+}
+
+XImage *xshmget(int x,int y) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XImage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *image;
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image=XShmCreateImage(display,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DefaultVisual(display,screen),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; depth=DefaultDepth(display,screen),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ZPixmap,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NULL,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;shminfo,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x,y);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shminfo.shmid=shmget(IPC_PRIVATE,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image->bytes_per_line*image->height,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPC_CREAT|0777 );
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shminfo.shmaddr=image->data=(char *)shmat(shminfo.shmid,0,0);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shminfo.readOnly = False;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XShmAttach(display, &amp;shminfo);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return(image);
+}
+
+void xmain(int i,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *w;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=XLoadQueryFont(display,"*helvetica*14*");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w=window_create(0,0,X,Y,"XSTEP and XSHM");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w->broadcast=drawf;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; image=xshmget(w->aw,w->ah);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer8=image->data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer16=(short *)image->data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer24=(int *)image->data;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; animate=1;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(i=0;i!=64;i++) colors[i]=getcolor(0,0,i*1024);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; srand(time(0));
+}
+
+</pre>
+</ul>
+O c&oacute;digo extra nos permite entender melhor a utilidade de um ponteiro
+direto para um buffer no servidor X: neste nosso exemplo um gr&aacute;fico
+&eacute; continuamente movido na tela, baseado em uma f&oacute;rmula matem&aacute;tica
+que desenha uma parabol&oacute;ide interada vista de cima (na pr&aacute;tica,
+o que veremos ser&atilde;o diversos circulos com degrades, representando
+curvas de n&iacute;vel na imagem). O volume de c&aacute;lculos, na m&aacute;quina
+que gerou a imagem abaixo, &eacute; de, aproximadamente, mais de 1 milh&atilde;o
+de pixels por segundo, gerando dinaminamicamente a imagem abaixo:
+<ul><img SRC="xshm.jpg" ></ul>
+A sele&ccedil;&atilde;o din&acirc;mica de profundidade permite desenhar
+os gr&aacute;ficos de forma parecida nas tr&ecirc;s profundidades dispon&iacute;veis,
+de modo que este exemplo deve rodar bem com 8, 16 ou 32 bits de profundidade
+de cor, sempre exibindo o mesmo aspecto na imagem. Como a imagem &eacute;
+atualizada sob controle do toolkit, todas as widgets do toolkit continuariam
+perfeitamente funcionais, permitindo, por exemplo, efetuar ajustes de par&acirc;metros
+na gera&ccedil;&atilde;o das imagens. As mentes mais imaginativas j&aacute;
+devem ter percebido isto a algum tempo, de modo que n&atilde;o se faz necess&aacute;rio
+demonstrar isto neste artigo.
+<p><b>CONCLUS&Atilde;O</b>
+<p>Com estes dois &uacute;ltimos exemplos, fechamos nosso artigo com chave
+de ouro, demontrando algumas das caracter&iacute;sticas avan&ccedil;adas
+do X para a manipula&ccedil;&atilde;o de imagens (espero que isto sirva
+de incentivo para bons programadores criarem boas aplica&ccedil;&otilde;es
+e, principalmente, jogos para o X :). Sobre o XSTEP, em particular, existe
+um bom manual de refer&ecirc;ncia, o<a href="../manual/index.html">XSTEP
+Reference Manual </a>, com demonstra&ccedil;&otilde;es particulares sobre
+cada widget. Uma boa olhada nos fontes do XSTEP pode trazer algumas surpresas,
+principalmente sobre fun&ccedil;&otilde;es n&atilde;o documentadas, como
+<b>downbox()</b>, <b>upbox()</b> e
+<b>getnamedcolor()</b>. A aplica&ccedil;&otilde;es
+exemplo tamb&eacute;m s&atilde;o uteis, principalmente no caso de widgets
+mais complexas, como a
+<b>xyscroll_create()</b> e <b>mkpixmap()</b>, que
+esperamos possam ser abordados com detalhes em futuros artigos.
+<p>Uma boa refer&ecirc;ncia sobre o funcionamento de um toolkit pode ser
+encontrado no artigo <a href="../xlib/index.html">Programa&ccedil;&atilde;o
+X</a>, que aborda programa&ccedil;&atilde;o basica com a X library, demonstrando
+inclusive algumas no&ccedil;&otilde;es da constru&ccedil;&atilde;o de um
+toolkit.
+<p><b>AP&Ecirc;NDICE A</b>
+<p>Todos os exemplos do artigo foram devidamente testados e est&atilde;o
+dispon&iacute;veis separadamente, em caso de d&uacute;vidas. Todos estes
+exemplos podem ser redistribu&iacute;dos e modificados de acordo com a
+GNU Public Licence.
+<p>Exemplos baseados no XSTEP:
+<ul>
+<li>
+<a href="sources/helloworld-10.c">Hello World parte 5 (hello world)</a></li>
+
+<li>
+<a href="sources/helloworld-11.c">Hello World parte 5 (fonte maior, sintaxe
+antiga)</a></li>
+
+<li>
+<a href="sources/helloworld-12.c">Hello World parte 5 (fonte maior, sintaxe
+nova)</a></li>
+
+<li>
+<a href="sources/helloworld-13.c">O Retorno dos Bot&otilde;es (com bot&otilde;es)</a></li>
+
+<li>
+<a href="sources/helloworld-14.c">O Retorno dos Bot&otilde;es (com anima&ccedil;&atilde;o)</a></li>
+
+<li>
+<a href="sources/helloworld-15.c">O Retorno dos Bot&otilde;es (janela redimension&aacute;vel)</a></li>
+
+<li>
+<a href="sources/helloworld-16.c">O Retorno dos Bot&otilde;es (com anima&ccedil;&atilde;o
+controlada)</a></li>
+
+<li>
+<a href="sources/helloworld-17.c">Caixas de Di&aacute;logo (controle de
+cores e velocidade)</a></li>
+
+<li>
+<a href="sources/helloworld-18.c">Caixas de Di&aacute;logo Avan&ccedil;adas
+(listas)</a></li>
+
+<li>
+<a href="sources/helloworld-19.c">Caixas de Di&aacute;logo Avan&ccedil;adas
+(listas de multiplas colunas)</a></li>
+
+<li>
+<a href="sources/helloworld-20.c">Caixas de Di&aacute;logo Avan&ccedil;adas
+(listas de multiplas colunas com menus)</a></li>
+
+<li>
+<a href="sources/helloworld-21.c">Caixas de Di&aacute;logo com Grupos (grupos
+em caixas de di&aacute;logo)</a></li>
+
+<li>
+<a href="sources/helloworld-22.c">Muito Al&eacute;m de Hello World (extens&atilde;o
+double buffer)</a></li>
+
+<li>
+<a href="sources/helloworld-23.c">Muito Al&eacute;m de Hello World (extens&atilde;o
+xshm, valores aleat&oacute;rios)</a></li>
+
+<li>
+<a href="sources/helloworld-24.c">Muito Al&eacute;m de Hello World (extens&atilde;o
+xshm, fun&ccedil;&atilde;o matem&aacute;tica)</a></li>
+
+<li>
+<a href="sources/Makefile">Makefile (utilize <b>make</b> para compilar)</a></li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+#!/bin/bash
+prog_name=XpowerRack
+help_file_name=xpowerrack.hlp
+about()
+{
+	echo "  This is the $prog_name an example script for the `xstep-shell -v` package ">$HOME/$help_file_name
+	echo "  based on the XSTEP 3.5.1 - Toolkit for X Window System - ">>$HOME/$help_file_name
+	echo "  Copyright (C) 1996-2000 by Marcelo Samsoniuk">>$HOME/$help_file_name
+	echo " ">>$HOME/$help_file_name
+	echo "  This program is free software; you can redistribute it and/or modify">>$HOME/$help_file_name
+	echo "  it under the terms of the GNU General Public License as published by">>$HOME/$help_file_name
+	echo "  the Free Software Foundation; either version 2 of the License, or">>$HOME/$help_file_name
+	echo "  (at your option) any later version.">>$HOME/$help_file_name
+	echo "  ">>$HOME/$help_file_name
+	echo "  This program is distributed in the hope that it will be useful,">>$HOME/$help_file_name
+	echo "  but WITHOUT ANY WARRANTY; without even the implied warranty of">>$HOME/$help_file_name
+	echo "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the">>$HOME/$help_file_name
+	echo "  GNU General Public License for more details.">>$HOME/$help_file_name
+	echo "  ">>$HOME/$help_file_name
+	echo "  You should have received a copy of the GNU General Public License">>$HOME/$help_file_name
+	echo "  along with this program; if not, write to the Free Software">>$HOME/$help_file_name
+	echo "  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA">>$HOME/$help_file_name
+	echo " ">>$HOME/$help_file_name
+	echo "  `xstep-shell -v` (C) 2001-2003 by Tito Ragusa email: tito-wolit@tiscalinet.it">>$HOME/$help_file_name
+	echo "  ">>$HOME/$help_file_name
+	xstep-shell -t $prog_name -vf $HOME/$help_file_name
+	rm -f $HOME/$help_file_name
+}
+x_click_exit_click()
+{
+# this to kill the process if x or exit is clicked
+set -- $out 
+ if [ "$1" = "Exit" ] 2>/dev/null ; then  
+	if [ $child_pid -gt 0 ] 2>/dev/null ;then
+		kill $child_pid
+	fi
+	close_it=0
+	kill  $$ 
+fi
+if [ $1 =  ] 2>/dev/null ; then  
+	if [ $child_pid -gt 0 ] 2>/dev/null ;then
+		kill $child_pid
+	fi
+	close_it=0
+	kill  $$ 
+fi
+}
+
+clean_out()
+{
+out=
+}
+
+close_win()
+{
+# close the last window, but let script run
+check=`ps | grep -c xstep-shell`
+pid=`ps | grep xstep-shell| cut -b 1-6`
+# checking if window was already closed by clicking x or exit
+if [ $check = 1 ] ; then 
+	kill $pid
+else
+kill $$
+fi
+}
+
+
+play_mp3()
+{
+text1=` mp3info "$song" | grep Title | cut -b 10-40 `
+text2=` mp3info "$song" | grep Artist | cut -b 10-40 `
+mpg123  "$song"	&
+child_pid=` ps | grep mpg123 | cut -b 1-6 `
+clean_out
+if [ "$text1" != "" ] ; then
+	out=`xstep-shell -q Artist Title -qv "$text2" "$text1" -l Playing... -bf -b Exit Stop -sy 180 -t XpowerRack `
+else
+	name=` basename "$song" `
+	out=`xstep-shell -t XpowerRack -l "Playing $name " -bf  -b Exit Stop `
+fi
+set -- $out
+out=$1
+x_click_exit_click 
+if [ $1 = Stop ]; then
+	if [ $child_pid -gt 0 ] 2>/dev/null ;then
+		kill $child_pid
+	fi	
+fi
+}
+
+# main 
+close_it=1 
+while [ $close_it = 1 ]
+do
+	out=`xstep-shell -t XpowerRack -l XpowerRack -bf -b Exit Scan Select PlayList About`
+	x_click_exit_click
+	case $out in 
+	Scan)
+		clean_out
+		if [ -f $HOME/mp3list ] ; then
+			out=`xstep-shell -t XpowerRack -l "Overwrite existing Playlist?" -bf -b Yes No`
+			x_click_exit_click
+		else
+			out=Yes
+		fi
+		if [ $out = Yes ] ;then
+			clean_out
+			out=`xstep-shell -t XpowerRack -l "Scanning user's home dir for mp3's" -bf -sx 420` &
+			find $HOME -name '*.mp3' > $HOME/mp3list
+			sleep 2
+			close_win
+			clean_out
+			out=`xstep-shell -t XpowerRack -vf $HOME/mp3list -pl `
+			song="$out"
+			x_click_exit_click
+		fi
+		;;
+	Select)	
+		clean_out
+		out=`xstep-shell -t XpowerRack -fs `
+		song="$out"
+		check=`echo $out | grep -c .mp3`
+		if [ $check = 1 ] ; then
+			play_mp3
+		else
+			clean_out
+			xstep-shell -t XpowerRack -l "No mp3 file selected" -bf -b Ok
+		fi
+	;;
+	PlayList)
+		clean_out
+		out=`xstep-shell -t XpowerRack -l "XpowerRack Playlist" -bf -b Select "Play All"`
+		case $out in
+		Select)
+			clean_out
+			out=`xstep-shell -t XpowerRack -vf $HOME/mp3list -pl -b Cancel `
+			echo $out
+			set -- $out
+			if [ $1 = Ok ] ; then
+				shift 1
+				echo $out
+				song=$*
+				check=`echo $song | grep -c .mp3`
+				if [ $check = 1 ] ; then
+						play_mp3
+				fi
+			fi
+		;;
+		"Play All")
+			clean_out
+			mpg123 -@ $HOME/mp3list &
+			echo
+			child_pid=` ps | grep mpg123 | cut -b 1-6 `
+			out=`xstep-shell -t XpowerRack -vf $HOME/mp3list  -b Next`
+			while [ $out != "Ok" ] 2>/dev/null
+			do
+				if [ $out = Next  ] ; then
+					kill -2 $child_pid
+					out=`xstep-shell -t XpowerRack -vf $HOME/mp3list  -b Next`
+				fi
+			done
+			kill -9 $child_pid
+			child_pid=0
+		;;
+		*)
+		close_it=0
+		;;
+		esac
+	;;
+	About)
+		about
+	;;
+	*)
+	;;
+	esac 
+done
+
+
+
+
+
+
+
+
+

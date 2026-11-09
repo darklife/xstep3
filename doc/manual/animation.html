@@ -1,0 +1,54 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Animations</h1>
+<img src="pictures/animation.jpg" >
+<blockquote>You can create very interactive applications with XSTEP. If
+you set the 'animate' variable to a non-zero value, animations can be created
+(in fact XSTEP&nbsp;will continuouslly generate broadcast events). You
+can control the speed of this animation with the function gettimeofday(),
+how in <a href="../../contrib/demos/xstepgears.c">xstepgears</a> application.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void draw(struct xtree *t) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!animate) return;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XSetForeground(display,t->gc,rand()%256);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XFillRectangle(display,t->win,t->gc,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->aw/2+rand()%t->aw-rand()%t->aw,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t->ah/2+rand()%t->ah-rand()%t->ah,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rand()%t->aw/4,rand()%t->ah/4);
+}
+
+void startf(struct xtree *t) { animate=1; }
+void stopf (struct xtree *t) { animate=0; }
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct xtree *win;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; win=window_create(0,0,400,180,"animation");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; win->broadcast=draw;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-(2*80+8),-8,72,24,"start",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; startf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-(1*80+8),-8,72,24,"stop",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stopf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-(0*80+8),-8,72,24,"close",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close);
+}</pre>
+</blockquote>
+In this example, the broadcast function of any widget (in this case a XSTEP
+window) can be redirected to other function (in this case draw()). The
+global variable 'animate' can enable or disable the continuous execution
+of draw().</blockquote>
+
+</body bgcolor=white>
+</html>

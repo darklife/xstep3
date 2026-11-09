@@ -1,0 +1,45 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Dialog Box</h1>
+<img src="pictures/dialog_create.jpg" >
+<blockquote>This is just a modifyed <a href="window_create.html">window</a>
+without handlers for resizes, titlebar or minimization button.</blockquote>
+<b>SINTAX</b>
+<blockquote><tt>struct xtree *dialog_create(w,h);</tt>
+<br><tt>int w,h;</tt><tt></tt>
+<p>By default this window is positioned in the center of your screen and
+can't be resized.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dialog_create(400,180);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,-90,"Warning, please read!",gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,-90,0,0,"",gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,-(24+16),0,40,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This is a dialog box, click OK to close.",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; invisible,center);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -8,-8,72,24,"OK",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close);&nbsp;&nbsp;&nbsp;&nbsp;
+}</pre>
+</blockquote>
+The XSTEP dialog box is a especial XSTEP window, without title or handlers
+for resizing. To be more close to the NeXTSTEP look-and-feel, you must
+create the labels and buttons in the correct positions, like this example.</blockquote>
+
+</body bgcolor=white>
+</html>

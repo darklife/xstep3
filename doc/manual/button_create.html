@@ -1,0 +1,47 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Buttons</h1>
+<img src="pictures/button_create.jpg" >
+<blockquote>The XSTEP&nbsp;button enable you to link any C&nbsp;function
+to a X&nbsp;widget. If the user press and release the button of mouse over
+this widget, the a C function will be called.</blockquote>
+<b>SYNTAX</b>
+<blockquote>
+<blockquote><tt>struct xtree *button_create(x,y,w,h,text,f);</tt><tt></tt>
+<p><tt>int x,y,w,h;</tt>
+<br><tt>char *text;</tt>
+<br><tt>void (*f)(struct xtree *);</tt></blockquote>
+</blockquote>
+
+<blockquote>Create a button with label 'text' in position (x,y) and size
+(w,h). If you press and release the mouse button over this button, the
+function 'f()' will be called by XSTEP (if you press the mouse button over
+the widget, but release out, the operation is ignored).</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"button_create");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -8,-8,72,24,"close",window_close);
+}</pre>
+</blockquote>
+In this small example, a window will be created with a button inside. If
+you close the window or click in the button, the application will be finalized
+(in fact the window will be closed, but without any open window, the application
+is automatically finalized).
+<p>The button in this example have a position relative to right down corner
+of window. If you resize the window, the button will be moved to maintain
+the relative position.</blockquote>
+
+</body>
+</html>

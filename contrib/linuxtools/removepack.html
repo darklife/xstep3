@@ -1,0 +1,64 @@
+#!/bin/sh
+
+COMMAND=`basename $0`
+
+if [ "$COMMAND" = "installpack" ]
+then
+
+	for PACKAGE in $*
+	do
+
+		#echo -n "installing $PACKAGE: "
+		tar -xzhvf $PACKAGE |
+		while read FILE
+		do
+			echo "$FILE"
+			#echo -n "+"
+		done
+		#echo " done."
+	done
+	exit
+fi
+
+if [ "$COMMAND" = "removepack" ]
+then
+
+	for PACKAGE in $*
+	do
+
+		#echo -n "removing $PACKAGE: "
+		tar -tzvf "$PACKAGE" | 
+		tac | 
+		while read FILE
+		do 
+			TYPE=`echo $FILE | cut -c -1`
+			FILE=`echo $FILE | awk '{ print $6 }'`
+
+			if [ "$TYPE" = "d" ]
+			then 
+				if rmdir $FILE
+				then 
+					echo "$FILE"
+					#echo -n "-"
+				else
+					echo "can't remove $FILE"
+					#echo -n "+"
+				fi 2> /dev/null
+			else 
+				if rm $FILE
+				then 
+					echo "$FILE"
+					#echo -n "-"
+				else
+					echo "can't remove $FILE"
+					#echo -n "+"
+				fi 2> /dev/null
+			fi; 
+		done
+		#echo " done."
+	done
+	exit
+fi
+
+echo "unknow option: please use 'installpack|removepack [*tgz]'"
+sleep 3

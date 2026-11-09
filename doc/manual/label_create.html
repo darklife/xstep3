@@ -1,0 +1,57 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Label</h1>
+<img src="pictures/label_create.jpg" >
+<blockquote>The label is just a floating decored (or not :)&nbsp;text inside
+any window. This text can be updated automatically by XSTEP&nbsp;with the
+verification of checksums. See the <a href="label_create_advanced.html">periodic
+table of labels</a> for details about options in label formating.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *label_create(x,y,w,h,label,color,type);</tt><tt></tt>
+<p><tt>int x,y,w,h,color,type;</tt>
+<br><tt>char *label;</tt>
+<p>Create a text in position (x,y) and size (w,h), with a colored box defined
+by 'color' and aligned by 'type'. For now 'type' can be 'left', 'right'
+or 'center'. A special type 'center' is defined by 'up'. The text stored
+in 'label' is checked in any 'broadcast' event and can be automatically
+updated.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+char text[256];
+&nbsp;
+void createf(struct xtree *treeptr) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(text,"%d clicks!",atoi(text)+1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; broadcast++;
+}
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"label_create");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica24b;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,0,0,-90,text,gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultfont=helvetica12m;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_create(0,-90,0,0,"",gray,up);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-88,-8,72,24,"create",&nbsp;&nbsp;&nbsp; createf);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -8,-8,72,24,"close",&nbsp;&nbsp;&nbsp;&nbsp; window_close);
+}</pre>
+</blockquote>
+In this example, if you click in the button, the variable text[] will be
+changed, then the label will check the variable and determine the checksum
+(if the variable change, the checksum change and then the label is redrawed
+with a new value of text[] :)</blockquote>
+
+</body bgcolor=white>
+</html>

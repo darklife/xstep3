@@ -1,0 +1,39 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Window</h1>
+<img src="pictures/window_create.jpg" >
+<blockquote>The XSTEP programming start with a window like any other window
+in the X Window System, but a XSTEP window is created with many useful
+features, like a GC and support for Window Maker's dock.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *window_create(x,y,w,h,title);</tt>
+<br><tt>void window_close(t);</tt>
+<p><tt>int x,y,w,h;</tt>
+<br><tt>char *title;</tt>
+<br><tt>struct xtree *t;</tt>
+<p>The window_create() function create a XSTEP window in (x,y) position,
+(w,h) size and a title 'title' in titlebar of window. A internal structure
+is created and a pointer to this structure is returned. This window can
+be destroyed by a window_close() function.</blockquote>
+
+<p><br><b>EXAMPLE</b>
+<blockquote>The example available just create a XSTEP window:
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"window_create");
+}</pre>
+</blockquote>
+This application will run until window be closed.</blockquote>
+
+</body bgcolor=white>
+</html>

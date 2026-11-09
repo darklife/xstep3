@@ -1,0 +1,23 @@
+# 68k test code
+# (c) 2000 by Marcelo Samsoniuk
+
+		00fffffe	# SSP=0xffffff
+		00001000	# PC=0x1000
+
+#1000		29c800002000    # MOVE.L 0x1000,A0	
+#		2018            # MOVE.L D0,(A0++)
+#		2020            # MOVE.L D0,(A0--)
+#		60fc            # BRA -4
+
+
+1000		29c800002000 	# MOVE.L 0x1000,A0
+		29c000000000 	# MOVE.L 0x0,D0
+		2001 		# MOVE.L D0,D1
+		2018 		# MOVE.L D0,(A0++)
+		5080 		# ADDQ.L #1,D0
+		64fa 		# BPL -6 = fa
+		4e72 		# STOP
+
+#1000		29c0000f0000	# MOVE.L 0xffff0000,D0
+#		5380		# SUB.L #1,D0
+#		60fe		# BRA -2

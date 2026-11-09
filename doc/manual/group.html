@@ -1,0 +1,67 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Groups</h1>
+<img src="pictures/group_create.jpg" height=210 width=400>
+<blockquote>This is a new widget introduced in version 3.3 to enable the
+construction of x/y scroll box :) this widget work like a XSTEP window
+inside other XSTEP window. Multiple groups can be rotated with XRaiseWindow()
+function.</blockquote>
+<b>SYNTAX</b>
+<blockquote><tt>struct xtree *group_begin(x,y,w,h,color);</tt>
+<br><tt>group_end();</tt><tt></tt>
+<p><tt>int x,y,w,h,color</tt>
+<p>The function group_begin() draw a new group widget and set the XSTEP
+root to be this group, then all widgets will be created inside this group.
+The function group_end() just reset the XSTEP&nbsp;root to be the parent
+window of a group. Multiple groups can be created inside a window and multiple
+levels of groups can be created inside others groups. Groups can bem moved
+with XMoveWindow(), resized with XResizeWindow()&nbsp;and raised with XRaiseWindow().</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+struct xtree *group1,*group2,*group3;
+
+void group1f(struct xtree *t) { XRaiseWindow(display,group1->win); }
+void group2f(struct xtree *t) { XRaiseWindow(display,group2->win); }
+void group3f(struct xtree *t) { XRaiseWindow(display,group3->win); }
+
+void xmain(int n,char *p[]) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"group");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group1=group_begin(8,8,-(16+72),-8,darkgray);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(8,8,-8,-8,"group 1",0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group_end();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group2=group_begin(8,8,-(16+72),-8,darkgray);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(8,8,-8,-8,"group 2",0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group_end();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group3=group_begin(8,8,-(16+72),-8,darkgray);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(8,8,-8,-8,"group 3",0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group_end();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,8+32*0,72,24,"group 1",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group1f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,8+32*1,72,24,"group 2",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group2f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,8+32*2,72,24,"group 3",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; group3f);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(-8,-8,72,24,"close",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_close);
+}</pre>
+</blockquote>
+</blockquote>
+
+<blockquote>This example just create three groups and raise the selected
+group.
+<br>&nbsp;</blockquote>
+
+</body bgcolor=white>
+</html>

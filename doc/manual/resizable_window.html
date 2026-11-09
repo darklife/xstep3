@@ -1,0 +1,58 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; Linux 2.0.34 i486) [Netscape]">
+</head>
+<body bgcolor=white>
+
+<h1>
+Resizable Window</h1>
+<img src="pictures/resizable_window.jpg" >
+<blockquote>All XSTEP&nbsp;widgets have now support for resizable windows:&nbsp;if
+you use relative positions to corners of a window (or, of couse, a group&nbsp;
+widget :), this relative position will be mainted if you resize this window.
+The basic rules are:
+<ul>
+<li>
+(x,y) positions:&nbsp;positive values are relative from the top left corner
+of the window, negative values are relative from the bottom right corner
+of the window.</li>
+
+<li>
+(w,h)&nbsp;sizes: positive values are really the width and height sizes
+for the widget, but negative values are in true relative positions from
+the bottom right corner of the window.</li>
+
+<li>
+negative and positive values for (x,y,w,h) can be mixed in any [possible]
+combination.</li>
+</ul>
+The zero isn't positive or negative, but if (x,y)&nbsp;are zero, then the
+position considered to be relative from the top left corner, if (w,h) are
+zero, then the position is considered to be relative from the bottom right
+corner of window. The real size of any widget is in fact calculated and
+stored in (aw,ah)&nbsp;values in the xtree structure of this widget.</blockquote>
+<b>EXAMPLE</b>
+<blockquote>
+<blockquote>
+<pre>#include &lt;xstep.h>
+
+void xmain(int n,char **p) {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window_create(0,0,400,180,"resizable window");
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(&nbsp;&nbsp; 8,&nbsp; 8, -8, -8, "center",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(&nbsp; 16, 16, 80, 24, "top left",&nbsp;&nbsp;&nbsp;&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -16, 16, 80, 24, "top right",&nbsp;&nbsp;&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create(&nbsp; 16,-16, 80, 24, "bottom left",&nbsp; 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; button_create( -16,-16, 80, 24, "bottom right", 0);
+}</pre>
+</blockquote>
+The first button have a (8,8) position relative from top left corner of
+window and a (-8,-8)&nbsp;position relative from bottom right corner of
+window (this widget will be placed in the center of window :), all others
+buttons have a fixed size and a variable set of relative positions.</blockquote>
+
+</body bgcolor=white>
+</html>
