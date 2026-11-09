@@ -1,2 +1,2 @@
-# xstep3 (legacy from SourceForge)
-XSTEP X11 toolkit version 3.5.1
+# XSTEP3 toolkit
+XSTEP3 toolkit version 3.5.1
